@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Run tests
+        run: pnpm vitest run
+
+      - name: Wrangler dry-run deploy
+        run: pnpm exec wrangler deploy --dry-run
+
+  # Valida as migrations contra Postgres REAL (não mock): aplicação limpa,
+  # idempotência (rodar 2x sem erro) e RLS habilitado em toda tabela do public.
+  # Motivação: review do PR #2 — suíte unitária verde não pega mismatch de
+  # schema, migration não-idempotente nem tabela sem RLS.
+  smoke-db:
+    name: smoke-db (migrations + RLS)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: smoke
+          POSTGRES_PASSWORD: smoke
+          POSTGRES_DB: smoke
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U smoke"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGPASSWORD: smoke
+      PSQL: psql -h 127.0.0.1 -U smoke -d smoke -v ON_ERROR_STOP=1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Aplicar migrations (1ª vez)
+        run: |
+          for f in supabase/migrations/*.sql; do
+            echo "--- $f ---"
+            $PSQL -f "$f"
+          done
+
+      - name: Re-aplicar migrations (idempotência)
+        run: |
+          for f in supabase/migrations/*.sql; do
+            echo "--- $f (2ª vez) ---"
+            $PSQL -f "$f"
+          done
+
+      - name: RLS habilitado em TODA tabela do public
+        run: |
+          SEM_RLS=$($PSQL -tAc "select coalesce(string_agg(relname, ', '), '') \
+            from pg_class \
+            where relkind='r' and relnamespace='public'::regnamespace \
+              and not relrowsecurity;")
+          if [ -n "$SEM_RLS" ]; then
+            echo "::error::Tabelas SEM RLS: $SEM_RLS"
+            exit 1
+          fi
+          echo "OK: todas as tabelas do public têm RLS habilitado."

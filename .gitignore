@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+.wrangler/
+.dev.vars
+*.local
+painel/config.js

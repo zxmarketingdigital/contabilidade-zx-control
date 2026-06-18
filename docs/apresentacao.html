@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!--
+  TEMPLATE — LP de apresentação do setup pro ALUNO (docs/apresentacao.html).
+  Padrão-ouro: Corretor ZX Control (10/Jun/2026). Design system ZX Control (ver DESIGN-TOKENS.md).
+
+  Placeholders a substituir:
+    Contabilidade ZX Control        ex: "Corretor ZX Control"
+    Contábil               ex: "Imobiliário"
+    {{PROMESSA}}            frase curta entre aspas, ex: "Nenhum lead esfria."
+    https://github.com/zxmarketingdigital/contabilidade-zx-control.git            ex: https://github.com/zxmarketingdigital/corretor-zx-control.git
+    {{N_AGENTES}}           ex: 5
+    {{HERO_SUBTITULO}}      complemento do h1, ex: "5 agentes de WhatsApp que vendem imóvel"
+    {{HERO_LEAD}}           parágrafo de abertura (o que o sistema faz pro cliente final)
+    {{CLIENTE_ALVO}}        ex: "o corretor de imóveis autônomo"
+
+  Blocos marcados com <!~~ REPETIR: ... ~~> (escritos como comentário normal abaixo)
+  têm 1 exemplo cada — o dev duplica o bloco com o conteúdo real do nicho.
+  Regra transversal do DoD: ZERO {{...}} sobrando no arquivo entregue.
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contabilidade ZX Control — Apresentação do Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#D97706; --primary-light:#F59E0B; --primary-bright:#FCD34D; --primary-dark:#92400e;
+    --bg:#0D0D0D; --bg-alt:#0A0A0A; --surface:#1A1A1A; --surface2:#222; --footer:#080808;
+    --text:#E2E8F0; --text-2:#9CA3AF; --text-muted:#6B7280; --border:#2A2A2A; --border-light:#333;
+    --green:#4ADE80; --red:#EF4444; --indigo:#818CF8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 24px}
+  .accent{color:var(--primary-light)}
+
+  /* ── HERO ── */
+  header{padding:84px 0 64px;border-bottom:1px solid var(--border);background:
+    radial-gradient(900px 400px at 50% -10%, rgba(217,119,6,.13), transparent 70%), var(--bg-alt)}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--primary-light);display:inline-flex;align-items:center;gap:10px;
+    border:1px solid var(--border-light);background:var(--surface);padding:8px 16px;border-radius:99px;margin-bottom:28px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+  h1{font-size:clamp(2.4rem,6vw,4.2rem);font-weight:900;letter-spacing:-.02em;line-height:1.04;margin-bottom:20px}
+  h1 .l2{display:block;color:var(--primary-light)}
+  .lead{font-size:1.18rem;color:var(--text-2);max-width:680px}
+  .promise{margin-top:30px;font-family:'JetBrains Mono',monospace;font-size:1.05rem;color:var(--primary-bright);
+    border-left:3px solid var(--primary);padding:10px 0 10px 18px}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:36px}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text-2);background:var(--surface);
+    border:1px solid var(--border);border-radius:8px;padding:8px 13px}
+
+  section{padding:64px 0;border-bottom:1px solid var(--border)}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--primary);margin-bottom:14px}
+  h2{font-size:clamp(1.6rem,3.5vw,2.3rem);font-weight:800;letter-spacing:-.01em;margin-bottom:14px}
+  .sub{color:var(--text-2);max-width:720px;margin-bottom:40px;font-size:1.05rem}
+
+  /* ── O QUE É ── */
+  .what{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:26px}
+  .card h3{font-size:1.05rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+  .card p{color:var(--text-2);font-size:.96rem}
+  .ic{width:34px;height:34px;flex:none;border-radius:9px;background:rgba(217,119,6,.14);border:1px solid rgba(217,119,6,.3);
+    display:grid;place-items:center;font-size:1rem}
+
+  /* ── AGENTES ── */
+  .agents{display:grid;gap:14px}
+  .agent{display:grid;grid-template-columns:54px 1fr auto;gap:18px;align-items:start;background:var(--surface);
+    border:1px solid var(--border);border-radius:14px;padding:22px 24px;transition:.2s}
+  .agent:hover{border-color:var(--primary-dark);transform:translateX(3px)}
+  .agent .num{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--primary-light);
+    width:54px;height:54px;border-radius:12px;background:var(--bg);border:1px solid var(--border-light);display:grid;place-items:center}
+  .agent h3{font-size:1.12rem;font-weight:800;margin-bottom:4px}
+  .agent p{color:var(--text-2);font-size:.95rem}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;
+    padding:5px 11px;border-radius:99px;white-space:nowrap;align-self:center}
+  .tag.react{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.3)}
+  .tag.cron{background:rgba(129,140,248,.12);color:var(--indigo);border:1px solid rgba(129,140,248,.3)}
+  .agent.bonus{border-style:dashed;background:var(--bg-alt)}
+
+  /* ── FLUXO ── */
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:8px}
+  .step{position:relative;text-align:center;padding:20px 12px}
+  .step .n{font-family:'JetBrains Mono',monospace;width:42px;height:42px;border-radius:50%;background:var(--surface);
+    border:1px solid var(--primary-dark);color:var(--primary-bright);display:grid;place-items:center;margin:0 auto 12px;font-weight:700}
+  .step b{display:block;font-size:.95rem;margin-bottom:3px}
+  .step span{color:var(--text-muted);font-size:.82rem}
+  .step:not(:last-child)::after{content:"→";position:absolute;right:-9px;top:34px;color:var(--primary-dark);font-size:1.3rem}
+
+  /* ── STACK ── */
+  .stack{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .tech{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+  .tech .e{font-size:1.5rem;margin-bottom:8px}
+  .tech b{display:block;font-size:.92rem;margin-bottom:3px}
+  .tech span{color:var(--text-muted);font-size:.78rem;font-family:'JetBrains Mono',monospace}
+
+  /* ── INSTALL ── */
+  .install{display:grid;gap:10px;counter-reset:s}
+  .irow{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;background:var(--surface);
+    border:1px solid var(--border);border-radius:12px;padding:16px 22px}
+  .irow .c{counter-increment:s;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--primary-light);
+    background:var(--bg);border:1px solid var(--border-light);width:38px;height:38px;border-radius:9px;display:grid;place-items:center}
+  .irow .c::before{content:counter(s,decimal-leading-zero)}
+  .irow b{font-size:1rem}
+  .irow p{color:var(--text-2);font-size:.9rem;margin-top:2px}
+
+  /* ── CREDS ── */
+  .creds{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .cred{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+  .cred .e{font-size:1.4rem;flex:none}
+  .cred b{display:block;font-size:.98rem;margin-bottom:2px}
+  .cred span{color:var(--text-2);font-size:.86rem}
+
+  /* ── CALLOUT ── */
+  .callout{background:linear-gradient(180deg,rgba(217,119,6,.08),transparent);border:1px solid var(--primary-dark);
+    border-radius:14px;padding:26px 28px}
+  .callout h3{font-size:1.05rem;font-weight:800;margin-bottom:10px;color:var(--primary-bright)}
+  .callout ul{list-style:none;display:grid;gap:8px}
+  .callout li{padding-left:26px;position:relative;color:var(--text-2);font-size:.95rem}
+  .callout li::before{content:"▸";position:absolute;left:6px;color:var(--primary)}
+  .callout li b{color:var(--text)}
+
+  .biz{background:var(--surface2);border:1px solid var(--border-light);border-radius:14px;padding:28px;margin-top:14px}
+  .biz p{color:var(--text-2);font-size:1rem}
+  .biz .hl{color:var(--primary-bright);font-weight:700}
+
+  /* ── CTA ── */
+  .cta{text-align:center;padding:72px 0;border:none;background:
+    radial-gradient(700px 300px at 50% 120%, rgba(217,119,6,.12), transparent 70%)}
+  .cta h2{margin-bottom:12px}
+  .cta p{color:var(--text-2);margin-bottom:26px}
+
+  /* ── PROMPT COPIÁVEL (CTA) ── */
+  .prompt-box{max-width:740px;margin:0 auto;text-align:left;background:#000;border:1px solid var(--border-light);
+    border-radius:12px;padding:20px 22px;font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--primary-bright);
+    line-height:1.55;word-break:break-word}
+  .prompt-box .p{color:var(--green);user-select:none}
+  .btn-copy{margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;cursor:pointer;
+    background:var(--surface);color:var(--text);border:1px solid var(--border-light);border-radius:10px;padding:12px 22px;transition:.2s}
+  .btn-copy:hover{border-color:var(--primary);color:var(--primary-bright)}
+  .btn-copy.ok{background:rgba(74,222,128,.12);border-color:var(--green);color:var(--green)}
+  .cta-steps{margin-top:26px;color:var(--text-muted);font-size:.88rem;line-height:1.9}
+  .cta-steps .mono{color:var(--text-2)}
+
+  /* ── BOTÃO DEMO ── */
+  .btn-demo{display:inline-block;background:var(--primary);color:#000;font-weight:700;border-radius:10px;
+    padding:14px 26px;text-decoration:none;transition:.2s;font-size:1rem}
+  .btn-demo:hover{background:var(--primary-light)}
+  .btn-demo.sm{padding:10px 18px;font-size:.88rem;margin-top:22px}
+
+  /* ── SIMULAÇÃO (CHAT) ── */
+  .chat{display:flex;flex-direction:column;gap:14px;max-width:800px;margin:0 auto}
+  .msg{max-width:86%;border-radius:14px;padding:14px 18px;font-size:.95rem;color:var(--text-2)}
+  .msg strong{color:var(--text)}
+  .msg code{font-family:'JetBrains Mono',monospace;font-size:.85em;color:var(--primary-bright);
+    background:rgba(217,119,6,.1);border:1px solid rgba(217,119,6,.25);border-radius:6px;padding:1px 7px}
+  .msg .who{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+    display:block;margin-bottom:7px;color:var(--text-muted)}
+  .msg.claude{align-self:flex-start;background:var(--surface);border:1px solid rgba(217,119,6,.32);
+    border-bottom-left-radius:4px}
+  .msg.claude .who{color:var(--primary-light)}
+  .msg.aluno{align-self:flex-end;background:var(--surface2);border:1px solid var(--border-light);
+    border-bottom-right-radius:4px}
+  .msg.term-msg{font-family:'JetBrains Mono',monospace;font-size:.84rem;background:#000;color:var(--text-2);
+    line-height:1.8}
+  .msg.term-msg .ok{color:var(--green)}
+  .msg.term-msg .cmd{color:var(--primary-bright)}
+  .chat-cta{text-align:center;margin-top:38px}
+  .chat-cta p{color:var(--text-2);margin-bottom:18px;font-size:.98rem}
+  @media(max-width:760px){.msg{max-width:100%}}
+
+  footer{padding:34px 0;text-align:center;color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:.8rem}
+
+  @media(max-width:760px){
+    .what,.creds,.stack{grid-template-columns:1fr}
+    .flow{grid-template-columns:1fr;gap:6px}
+    .step:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-4px;transform:translateX(-50%)}
+    .agent{grid-template-columns:44px 1fr}.agent .tag{grid-column:2;justify-self:start;margin-top:6px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="kicker"><span class="dot"></span> Linha de Nicho ZX Control v3 · Contábil</span>
+    <h1>Contabilidade ZX Control<span class="l2">{{HERO_SUBTITULO}}</span></h1>
+    <p class="lead">{{HERO_LEAD}}</p>
+    <p class="promise mono">"{{PROMESSA}}"</p>
+    <div class="hero-meta">
+      <span class="chip">Cloudflare Workers + Cron</span>
+      <span class="chip">Supabase · RLS</span>
+      <span class="chip">Painel em Pages</span>
+      <span class="chip">Gemini Flash</span>
+      <span class="chip">WhatsApp · Evolution</span>
+    </div>
+    <a class="btn-demo sm" href="http://localhost:8910/" target="_blank" rel="noopener">🖥️ Ver o sistema ao vivo (demo local)</a>
+  </div>
+</header>
+
+<!-- O QUE É -->
+<section><div class="wrap">
+  <p class="eyebrow">// O que é este setup</p>
+  <h2>Um produto pronto que você revende — não um código pra escrever</h2>
+  <p class="sub">A lógica dos {{N_AGENTES}} agentes é <b>congelada e validada</b> (suíte de testes verde). Sua instalação aqui
+  no Claude Code <b>só configura</b> o produto para o seu cliente: credenciais, banco, deploy e validação. Nada de programar.</p>
+  <div class="what">
+    <div class="card"><h3><span class="ic">📦</span> Núcleo congelado</h3>
+      <p>Mesma engenharia dos demais pacotes da linha. Versionado por tag <span class="mono accent">vX.Y.Z</span> — você nunca toca em <span class="mono">src/</span>.</p></div>
+    <!-- REPETIR: mais 3 cards .card adaptados ao nicho — (1) quem é o cliente-alvo ({{CLIENTE_ALVO}})
+         e como a qualificação funciona no padrão do nicho; (2) "roda na sua infra" (Supabase +
+         Cloudflare + WhatsApp por cliente, free tier); (3) "você instala e cobra" (white-label +
+         masterclass de venda/precificação). Padrão-ouro: docs/apresentacao.html do Corretor. -->
+    <div class="card"><h3><span class="ic">💸</span> Você instala e cobra</h3>
+      <p>White-label. Acompanha uma masterclass de <b>como vender e precificar</b> para {{CLIENTE_ALVO}}.</p></div>
+  </div>
+</div></section>
+
+<!-- AGENTES -->
+<section><div class="wrap">
+  <p class="eyebrow">// O motor</p>
+  <h2>Os {{N_AGENTES}} agentes</h2>
+  <p class="sub">Um reativo que atende na hora, os demais proativos que rodam sozinhos por cron. Todo disparo proativo passa
+  por throttle anti-ban, dedup, idempotência e opt-out ("responda SAIR").</p>
+  <div class="agents">
+    <!-- REPETIR: um bloco .agent por agente ({{N_AGENTES}} no total, na ordem do spec).
+         tag "react" = reativo/tempo real · tag "cron" = proativo agendado.
+         Use .agent.bonus (borda tracejada) pra jobs auxiliares tipo anti-no-show. -->
+    <div class="agent"><div class="num">1</div>
+      <div><h3>Atendente + Qualificador</h3><p>Atende o WhatsApp 24/7, qualifica o lead no padrão do nicho e conduz até a conversão. É a espinha do produto.</p></div>
+      <span class="tag react">reativo · tempo real</span></div>
+    <div class="agent"><div class="num">2</div>
+      <div><h3>Follow-up incansável</h3><p>Faz a promessa "{{PROMESSA}}" valer. Persegue quem não respondeu e quem sumiu, em cadência multi-toque.</p></div>
+      <span class="tag cron">cron</span></div>
+  </div>
+</div></section>
+
+<!-- FLUXO -->
+<section><div class="wrap">
+  <p class="eyebrow">// Como funciona na prática</p>
+  <h2>Do primeiro contato à conversão</h2>
+  <p class="sub">O cliente final põe um link/QR "fale comigo" na bio, no anúncio ou no ponto físico. O lead cai direto no Agente 1.</p>
+  <div class="flow">
+    <!-- REPETIR: 5 blocos .step com o funil real do nicho (lead chega → qualifica → ... → conversão). -->
+    <div class="step"><div class="n">1</div><b>Lead chega</b><span>WhatsApp via link/QR</span></div>
+    <div class="step"><div class="n">2</div><b>Qualifica</b><span>critérios do nicho</span></div>
+    <div class="step"><div class="n">3</div><b>Apresenta</b><span>match com a oferta</span></div>
+    <div class="step"><div class="n">4</div><b>Agenda</b><span>próximo passo concreto</span></div>
+    <div class="step"><div class="n">5</div><b>Follow-up</b><span>até fechar ou desistir</span></div>
+  </div>
+</div></section>
+
+<!-- STACK -->
+<section><div class="wrap">
+  <p class="eyebrow">// O que vamos colocar no ar</p>
+  <h2>A stack que a instalação monta</h2>
+  <div class="stack">
+    <div class="tech"><div class="e">⚡</div><b>Cloudflare Worker</b><span>agentes + API + crons</span></div>
+    <div class="tech"><div class="e">🗄️</div><b>Supabase</b><span>banco · RLS</span></div>
+    <div class="tech"><div class="e">📊</div><b>Painel (Pages)</b><span>operação do cliente</span></div>
+    <div class="tech"><div class="e">📱</div><b>Evolution API</b><span>WhatsApp</span></div>
+  </div>
+  <!-- REPETIR: ajuste o parágrafo abaixo com as tabelas REAIS do schema do produto. -->
+  <p class="sub" style="margin-top:28px;margin-bottom:0">Tabelas no banco — entidades principais do nicho,
+  <span class="mono accent">conversas/mensagens</span> e <span class="mono accent">disparos</span>
+  (log de dedup + rate-cap + opt-out). O cérebro é o Gemini (interpreta e redige);
+  o <b>matching é SQL</b> — barato e determinístico.</p>
+</div></section>
+
+<!-- INSTALAÇÃO -->
+<section><div class="wrap">
+  <p class="eyebrow">// O passo a passo que faremos juntos</p>
+  <h2>8 passos — eu conduzo, você responde</h2>
+  <p class="sub">Vou conversar com você um item de cada vez, explicando onde pegar cada credencial. Ao final, deploy e smoke test.</p>
+  <div class="install">
+    <!-- REPETIR: alinhe os passos com o CLAUDE.md de INSTALAÇÃO do produto (instalação guiada, DoD item 1). -->
+    <div class="irow"><div class="c"></div><div><b>Boas-vindas e checagem</b><p>Confirmar que você tem as 4 contas em mãos.</p></div></div>
+    <div class="irow"><div class="c"></div><div><b>Coletar credenciais</b><p>Uma de cada vez, com o "onde pegar".</p></div></div>
+    <div class="irow"><div class="c"></div><div><b>Escrever os configs</b><p><span class="mono">.env</span> + <span class="mono">painel/config.js</span> (não vão pro git).</p></div></div>
+    <div class="irow"><div class="c"></div><div><b>Aplicar o banco</b><p>Migrations + seed de demonstração no Supabase do cliente.</p></div></div>
+    <div class="irow"><div class="c"></div><div><b>Deploy</b><p>Worker + painel no Cloudflare, com os secrets.</p></div></div>
+    <div class="irow"><div class="c"></div><div><b>Conectar o WhatsApp</b><p>Registrar o webhook e escanear o QR do número do cliente.</p></div></div>
+    <div class="irow"><div class="c"></div><div><b>Smoke test</b><p>Valida tudo de ponta a ponta. Se falhar, a gente para e corrige.</p></div></div>
+    <div class="irow"><div class="c"></div><div><b>Importar a base atual <span style="color:var(--text-muted)">(opcional)</span></b><p>Planilha do cliente via CSV.</p></div></div>
+  </div>
+</div></section>
+
+<!-- CREDENCIAIS -->
+<section><div class="wrap">
+  <p class="eyebrow">// Tenha isto em mãos antes de começar</p>
+  <h2>As 4 contas necessárias</h2>
+  <div class="creds">
+    <div class="cred"><span class="e">🗄️</span><div><b>Supabase</b><span>Banco do cliente. Precisamos da Project URL + service_role key.</span></div></div>
+    <div class="cred"><span class="e">⚡</span><div><b>Cloudflare</b><span>Hospeda o Worker (agentes) e o painel. Wrangler logado.</span></div></div>
+    <div class="cred"><span class="e">🧠</span><div><b>Google Gemini</b><span>Chave em aistudio.google.com/apikey — tem free tier.</span></div></div>
+    <div class="cred"><span class="e">📱</span><div><b>WhatsApp · Evolution</b><span>Instância na sua infra de revendedor: URL, nome e API key.</span></div></div>
+  </div>
+</div></section>
+
+<!-- OPERAÇÃO -->
+<section><div class="wrap">
+  <p class="eyebrow">// O que destrava o valor</p>
+  <h2>Ações do cliente — ensine sempre</h2>
+  <div class="callout">
+    <h3>⚠️ Sem isto, o produto "parece quebrado"</h3>
+    <ul>
+      <!-- REPETIR: 2-3 itens <li> com as ações humanas REAIS que destravam os agentes proativos
+           do nicho (ex. Corretor: manter catálogo atualizado, marcar fechado/perdido, popular carteira). -->
+      <li><b>Manter os dados do nicho atualizados</b> — senão o Agente 1 oferece o que não existe.</li>
+      <li><b>Marcar fechado/perdido</b> — destrava o agente de pós-venda/indicação.</li>
+    </ul>
+  </div>
+  <div class="biz">
+    <!-- REPETIR: adapte a ancoragem de preço ao nicho (no Corretor: comissão, não mensalidade). -->
+    <p>💸 <b>Como você ganha:</b> ancore o preço no <span class="hl">resultado que o sistema gera</span> —
+    "um cliente a mais fechado já paga o sistema". Prefira <span class="hl">setup maior + mensalidade baixa</span> pra reduzir churn.</p>
+  </div>
+</div></section>
+
+<!-- SIMULAÇÃO -->
+<section><div class="wrap">
+  <p class="eyebrow">// Antes de começar, espie o filme inteiro</p>
+  <h2>Veja a instalação acontecendo</h2>
+  <p class="sub">É assim que a conversa rola dentro do Claude Code — o Claude pergunta, você responde, ele executa. Do zero ao painel no ar.</p>
+
+  <div class="chat">
+    <!-- REPETIR: simulação de chat com as credenciais REAIS do produto (.env do repo),
+         seguindo o roteiro do CLAUDE.md de instalação. Padrão-ouro: seção "SIMULAÇÃO" do Corretor. -->
+    <div class="msg claude"><span class="who">🤖 Claude Code</span>
+      Bem-vindo! Vou configurar o <strong>Contabilidade ZX Control</strong> para o cliente que você vai atender. Você tem as 4 contas? <strong>(Supabase, Cloudflare, Gemini, Evolution)</strong></div>
+    <div class="msg aluno"><span class="who">👤 Aluno</span>
+      Tenho todas.</div>
+    <div class="msg claude"><span class="who">🤖 Claude Code</span>
+      Beleza, vamos uma de cada vez. <code>SUPABASE_URL</code> → Project Settings ▸ API ▸ Project URL.</div>
+    <div class="msg claude term-msg"><span class="who">🤖 Claude Code</span>
+      Aplicando o banco: <span class="cmd">supabase db push</span> + seed.sql <span class="ok">✅</span><br>
+      Deploy: <span class="cmd">wrangler deploy</span> (Worker) + <span class="cmd">wrangler pages deploy painel/</span> <span class="ok">✅</span></div>
+    <div class="msg claude"><span class="who">🤖 Claude Code</span>
+      <strong>Instalação concluída.</strong> O cliente já pode acessar o painel.</div>
+  </div>
+
+  <div class="chat-cta">
+    <p>Este é o painel que o cliente recebe — já populado com dados de demonstração.</p>
+    <a class="btn-demo" href="http://localhost:8910/" target="_blank" rel="noopener">🖥️ Ver o sistema ao vivo (demo local)</a>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="cta"><div class="wrap">
+  <h2>Pronto pra instalar?</h2>
+  <p>Abra o Claude Code e cole o comando abaixo — ele clona o repositório e inicia a instalação guiada com você.</p>
+  <div class="prompt-box" id="install-prompt"><span class="p">&gt;</span> https://github.com/zxmarketingdigital/contabilidade-zx-control.git — Faz o clone deste repositório e inicia a instalação do setup</div>
+  <button class="btn-copy" id="btn-copy" type="button">📋 Copiar prompt</button>
+  <div class="cta-steps">
+    1) Abra o terminal e digite <span class="mono">claude</span> &nbsp;·&nbsp;
+    2) Cole o prompt acima &nbsp;·&nbsp;
+    3) O Claude clona, te apresenta o produto e conduz a instalação credencial por credencial.
+  </div>
+</div></section>
+
+<script>
+  document.getElementById('btn-copy').addEventListener('click', function(){
+    var texto = 'https://github.com/zxmarketingdigital/contabilidade-zx-control.git — Faz o clone deste repositório e inicia a instalação do setup';
+    var btn = this;
+    navigator.clipboard.writeText(texto).then(function(){
+      btn.textContent = '✅ Copiado!';
+      btn.classList.add('ok');
+      setTimeout(function(){ btn.textContent = '📋 Copiar prompt'; btn.classList.remove('ok'); }, 2000);
+    });
+  });
+</script>
+
+<footer class="wrap">Contabilidade ZX Control · Pacote de Nicho ZX Control v3 · Instalação assistida pelo Claude Code</footer>
+
+</body>
+</html>

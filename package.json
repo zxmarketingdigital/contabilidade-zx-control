@@ -1,0 +1,28 @@
+{
+  "name": "contabilidade-zx-control",
+  "version": "0.1.0",
+  "description": "Contabilidade ZX Control — pacote de nicho contábil (5 agentes de IA texto, com autenticação).",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "dev": "wrangler dev",
+    "ci": "pnpm typecheck && pnpm vitest run && wrangler deploy --dry-run",
+    "deploy": "wrangler deploy"
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.33.2",
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.16.12",
+    "@cloudflare/workers-types": "^4.20260603.1",
+    "typescript": "^6.0.3",
+    "vite": "^7.3.5",
+    "vitest": "^4.1.8",
+    "wrangler": "^4.97.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.107.0",
+    "zod": "^4.4.3"
+  }
+}
