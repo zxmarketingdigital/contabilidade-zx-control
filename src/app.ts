@@ -16,10 +16,18 @@ import { gerarConsultoria } from "./agents/consultor";
 import { gerarRespostaFisco } from "./agents/fisco";
 import type { AgendaRepo } from "./agenda";
 import type { AgenteTipo, SaidasRepo } from "./saidas";
+import {
+  competenciaInputSchema,
+  empresaInputSchema,
+  type CompetenciasRepo,
+  type EmpresasRepo,
+} from "./entidades";
 
 export interface AppDeps {
   agenda: AgendaRepo;
   saidas: SaidasRepo;
+  empresas: EmpresasRepo;
+  competencias: CompetenciasRepo;
   llm: LLM;
   /** override do verificador de auth (testes); produção usa o GoTrue do Supabase */
   verify?: VerifyOverride;
@@ -87,11 +95,48 @@ export async function handleRequest(req: Request, env: AuthEnv, deps: AppDeps): 
     }
   }
 
+  // ── CRUD Empresas-cliente (spec §6.1) ──
+  if (pathname === "/api/empresas") {
+    if (req.method === "GET") return json(await deps.empresas.listar());
+    if (req.method === "POST") {
+      const parsed = empresaInputSchema.safeParse(await lerJson(req));
+      if (!parsed.success) return json({ error: "Empresa inválida" }, 400);
+      return json(await deps.empresas.criar(parsed.data), 201);
+    }
+  }
+  const empMatch = /^\/api\/empresas\/([^/]+)$/.exec(pathname);
+  if (empMatch && req.method === "DELETE") {
+    await deps.empresas.remover(empMatch[1]!);
+    return json({ ok: true });
+  }
+
+  // ── CRUD Competências (spec §6.2) ──
+  if (pathname === "/api/competencias") {
+    if (req.method === "GET") {
+      const empresaId = url.searchParams.get("empresaId") ?? undefined;
+      return json(await deps.competencias.listar(empresaId));
+    }
+    if (req.method === "POST") {
+      const parsed = competenciaInputSchema.safeParse(await lerJson(req));
+      if (!parsed.success) return json({ error: "Competência inválida" }, 400);
+      return json(await deps.competencias.criar(parsed.data), 201);
+    }
+  }
+
   // ── Agenda de prazos (lê o que o Agente 1 gravou) ──
   if (pathname === "/api/prazos" && req.method === "GET") {
     const empresaId = url.searchParams.get("empresaId");
     if (!empresaId) return json({ error: "empresaId obrigatório" }, 400);
     return json(await deps.agenda.listarPrazos(empresaId));
+  }
+  const prazoStatus = /^\/api\/prazos\/([^/]+)\/status$/.exec(pathname);
+  if (prazoStatus && req.method === "PUT") {
+    const body = (await lerJson(req)) as { status?: string };
+    if (body?.status !== "pendente" && body?.status !== "cumprido") {
+      return json({ error: "status inválido" }, 400);
+    }
+    await deps.agenda.atualizarStatus(prazoStatus[1]!, body.status);
+    return json({ ok: true });
   }
 
   // ── Histórico de saídas dos agentes ──

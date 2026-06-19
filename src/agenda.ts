@@ -23,6 +23,7 @@ export interface PrazoRow extends PrazoNovo {
 export interface AgendaRepo {
   inserirPrazos(prazos: PrazoNovo[]): Promise<PrazoRow[]>;
   listarPrazos(empresaId: string): Promise<PrazoRow[]>;
+  atualizarStatus(id: string, status: "pendente" | "cumprido"): Promise<void>;
 }
 
 /** Implementação em memória — usada pela demo e pelos testes de integração. */
@@ -40,6 +41,11 @@ export class AgendaMemoria implements AgendaRepo {
     return this.rows
       .filter((r) => r.empresaId === empresaId)
       .sort((a, b) => a.dataFatal.localeCompare(b.dataFatal));
+  }
+
+  async atualizarStatus(id: string, status: "pendente" | "cumprido"): Promise<void> {
+    const row = this.rows.find((r) => r.id === id);
+    if (row) row.status = status;
   }
 }
 

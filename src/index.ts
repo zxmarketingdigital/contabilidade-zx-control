@@ -9,6 +9,7 @@
 import { handleRequest, type AppDeps } from "./app";
 import { AgendaSupabase } from "./supabase-agenda";
 import { SaidasSupabase } from "./saidas";
+import { CompetenciasSupabase, EmpresasSupabase } from "./entidades";
 import { geminiFlash } from "./gemini/client";
 
 export interface Env {
@@ -22,6 +23,8 @@ export default {
     const deps: AppDeps = {
       agenda: new AgendaSupabase(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY),
       saidas: new SaidasSupabase(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY),
+      empresas: new EmpresasSupabase(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY),
+      competencias: new CompetenciasSupabase(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY),
       llm: (prompt) => geminiFlash(prompt, { GEMINI_API_KEY: env.GEMINI_API_KEY }),
     };
     return handleRequest(req, env, deps);

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { handleRequest, type AppDeps } from "../src/app";
 import { AgendaMemoria } from "../src/agenda";
 import { SaidasMemoria } from "../src/saidas";
+import { CompetenciasMemoria, EmpresasMemoria } from "../src/entidades";
 import type { AuthEnv } from "../src/auth";
 
 const ENV: AuthEnv = { SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_KEY: "svc" };
@@ -11,6 +12,8 @@ function deps(over: Partial<AppDeps> = {}): AppDeps {
   return {
     agenda: new AgendaMemoria(),
     saidas: new SaidasMemoria(),
+    empresas: new EmpresasMemoria(),
+    competencias: new CompetenciasMemoria(),
     llm: async () => "orientação",
     verify: async () => ({ id: "u1", email: "c@e.com" }), // token "válido" nos testes
     ...over,
