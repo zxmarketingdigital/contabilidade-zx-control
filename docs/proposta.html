@@ -1,26 +1,13 @@
 <!DOCTYPE html>
-<!--
-  TEMPLATE — Apresentação comercial WHITE-LABEL pro CLIENTE FINAL (docs/proposta.html).
-  É a página que o ALUNO mostra/manda pro cliente dele — sem marca ZX LAB, sem jargão técnico.
-  Padrão-ouro: demo-publica/proposta.html do Corretor ZX Control (10/Jun/2026).
-
-  Placeholders a substituir:
-    Contabilidade ZX Control          nome do produto (uso interno; a página fala "assistente de IA pra Contábil")
-    Contábil                 ex: "Imobiliário" / "Clínicas de estética"
-    {{CLIENTE_ALVO}}          quem compra, ex: "o corretor de imóveis autônomo"
-    {{PRECO_IMPLEMENTACAO}}   ex: "R$ 3.000" — DoD item 6: SEM placeholder no arquivo entregue
-    {{PRECO_MENSAL}}          ex: "R$ 500"
-    {{DEMO_URL}}              URL da demo pública/painel ao vivo (ex: "/" na demo local)
-
-  Blocos com comentário REPETIR têm 1 exemplo — o dev duplica com o conteúdo real do nicho.
-  Regra transversal do DoD: ZERO {{...}} sobrando no arquivo entregue.
--->
+<!-- Apresentação comercial WHITE-LABEL pro CLIENTE FINAL (o contador/escritório).
+     Página que o revendedor mostra/manda — sem marca, sem jargão técnico.
+     Produto texto→texto, com login, sem WhatsApp/disparo na v1. -->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Proposta — Assistente de IA · Contábil</title>
-<meta name="description" content="Atendimento no automático: assistente de IA que atende, qualifica e agenda no WhatsApp 24 horas por dia.">
+<title>Proposta — Assistente de IA para Contabilidade</title>
+<meta name="description" content="5 assistentes de IA que aceleram o trabalho fiscal do seu escritório: calendário de obrigações, enquadramento, comunicados, consultoria e respostas ao Fisco.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -38,7 +25,6 @@
   .wrap{max-width:960px;margin:0 auto;padding:0 20px}
   .accent{color:var(--primary-light)}
 
-  /* ── HERO ── */
   header{padding:64px 0 56px;border-bottom:1px solid var(--border);background:
     radial-gradient(700px 360px at 50% -10%, rgba(217,119,6,.14), transparent 70%), var(--bg-alt);text-align:left}
   .kicker{font-family:'JetBrains Mono',monospace;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;
@@ -51,7 +37,6 @@
   .promise{margin-top:24px;font-family:'JetBrains Mono',monospace;font-size:1rem;color:var(--primary-bright);
     border-left:3px solid var(--primary);padding:8px 0 8px 16px}
 
-  /* ── BOTÕES ── */
   .btn{display:inline-block;background:var(--primary);color:#000;font-weight:700;border-radius:10px;
     padding:15px 26px;text-decoration:none;transition:.2s;font-size:1rem;text-align:center}
   .btn:hover{background:var(--primary-light)}
@@ -65,15 +50,12 @@
   h2{font-size:clamp(1.45rem,5vw,2.1rem);font-weight:800;letter-spacing:-.01em;margin-bottom:12px}
   .sub{color:var(--text-2);max-width:680px;margin-bottom:32px;font-size:1rem}
 
-  /* ── DOR ── */
   .pains{display:grid;gap:14px}
-  .pain{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;
-    border-left:3px solid var(--red)}
+  .pain{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;border-left:3px solid var(--red)}
   .pain h3{font-size:1.02rem;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:10px}
   .pain p{color:var(--text-2);font-size:.94rem}
   .pain .e{font-size:1.2rem}
 
-  /* ── BENEFÍCIOS ── */
   .feats{display:grid;gap:14px}
   .feat{display:grid;grid-template-columns:46px 1fr;gap:16px;align-items:start;background:var(--surface);
     border:1px solid var(--border);border-radius:14px;padding:20px 22px;transition:.2s}
@@ -83,7 +65,6 @@
   .feat h3{font-size:1.05rem;font-weight:800;margin-bottom:3px}
   .feat p{color:var(--text-2);font-size:.93rem}
 
-  /* ── FLUXO ── */
   .flow{display:grid;gap:8px;margin-top:8px}
   .step{display:grid;grid-template-columns:42px 1fr;gap:16px;align-items:center;background:var(--surface);
     border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative}
@@ -93,14 +74,12 @@
   .step span{color:var(--text-muted);font-size:.85rem}
   .flow .arrow{color:var(--primary-dark);font-size:1.1rem;line-height:1;padding:2px 0 2px 21px;text-align:left}
 
-  /* ── PAINEL ── */
   .panel-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:32px}
   .pcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
   .pcard .e{font-size:1.5rem;margin-bottom:8px}
   .pcard b{display:block;font-size:.95rem;margin-bottom:3px}
   .pcard span{color:var(--text-muted);font-size:.82rem}
 
-  /* ── INVESTIMENTO ── */
   .invest{border-bottom:1px solid var(--border);background:
     radial-gradient(600px 300px at 50% 0%, rgba(217,119,6,.1), transparent 70%)}
   .prices{display:grid;gap:16px;margin-bottom:24px}
@@ -118,7 +97,6 @@
   .anchor p{color:var(--text-2);font-size:1rem}
   .anchor .hl{color:var(--primary-bright);font-weight:700}
 
-  /* ── FAQ ── */
   .faq{display:grid;gap:10px}
   details{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
   summary{cursor:pointer;padding:18px 20px;font-weight:700;font-size:.98rem;list-style:none;display:flex;
@@ -129,7 +107,6 @@
   details[open] summary{border-bottom:1px solid var(--border)}
   details .a{padding:16px 20px;color:var(--text-2);font-size:.93rem}
 
-  /* ── CTA ── */
   .cta{text-align:center;padding:64px 0 72px;border:none;background:
     radial-gradient(600px 280px at 50% 120%, rgba(217,119,6,.13), transparent 70%)}
   .cta h2{margin-bottom:10px}
@@ -158,146 +135,171 @@
 <!-- 1. HERO -->
 <header>
   <div class="wrap">
-    <span class="kicker"><span class="dot"></span> Assistente de IA · WhatsApp 24h</span>
-    <!-- REPETIR: h1 + lead com a dor/desejo central de {{CLIENTE_ALVO}}, em linguagem do nicho. -->
-    <h1>Seu atendimento<span class="l2">no automático</span></h1>
-    <p class="lead">Enquanto você toca o seu negócio, seu assistente de IA atende, qualifica
-    e agenda no WhatsApp — <b>24 horas por dia</b>. Você só entra na conversa quando é hora de fechar.</p>
-    <p class="promise mono">"Nenhum cliente esfria."</p>
-    <a class="btn" href="{{DEMO_URL}}">Ver o sistema funcionando →</a>
+    <span class="kicker"><span class="dot"></span> Assistente de IA para o seu escritório</span>
+    <h1>Menos burocracia,<span class="l2">mais tempo pro que importa</span></h1>
+    <p class="lead">5 assistentes de inteligência artificial que fazem o trabalho fiscal repetitivo do seu
+    escritório em minutos — calendário de obrigações, enquadramento, comunicados, consultoria e respostas
+    ao Fisco. Você digita ou cola a informação; a IA devolve pronto. <b>Você continua no comando, sempre.</b></p>
+    <p class="promise mono">"O mês fiscal organizado sem perder noites."</p>
+    <a class="btn" href="http://localhost:8910/">Ver o sistema funcionando →</a>
   </div>
 </header>
 
 <!-- 2. A DOR -->
 <section><div class="wrap">
   <p class="eyebrow">// Você conhece essa rotina</p>
-  <h2>Quanto dinheiro já escapou assim?</h2>
+  <h2>Quanto tempo o trabalho manual já custou?</h2>
   <div class="pains">
-    <!-- REPETIR: 3 cards .pain com as dores REAIS de {{CLIENTE_ALVO}} (cenário concreto, não abstração).
-         Padrão-ouro: "O lead que não esperou / A visita que virou furo / O cliente antigo esquecido". -->
-    <div class="pain"><h3><span class="e">🏃</span> O cliente que não esperou</h3>
-      <p>Ele chama vários concorrentes ao mesmo tempo e fecha com quem responde primeiro. Se você
-      estava ocupado — perdeu.</p></div>
+    <div class="pain"><h3><span class="e">📅</span> O prazo que passou batido</h3>
+      <p>Um vencimento esquecido vira multa e cliente irritado. Controlar obrigação por obrigação, empresa
+      por empresa, na planilha, é receita de erro.</p></div>
+    <div class="pain"><h3><span class="e">⏳</span> Horas montando o óbvio</h3>
+      <p>Calendário do mês, comunicado pro cliente, ficha de enquadramento — sempre do zero, sempre na mão.
+      Tempo que não volta e não dá pra cobrar.</p></div>
+    <div class="pain"><h3><span class="e">📨</span> A intimação que trava o dia</h3>
+      <p>Chega uma notificação do Fisco e o dia para: ler, estruturar a resposta, achar as palavras.
+      Enquanto isso, o resto da carteira espera.</p></div>
   </div>
 </div></section>
 
 <!-- 3. O QUE O SISTEMA FAZ -->
 <section><div class="wrap">
   <p class="eyebrow">// O que o sistema faz por você</p>
-  <h2>Uma equipe inteira de atendimento <span class="accent">trabalhando no seu WhatsApp</span></h2>
-  <p class="sub">Cada parte do sistema cuida de uma ponta do seu funil — do primeiro "oi"
-  até o pedido de indicação depois da venda.</p>
+  <h2>Cinco assistentes <span class="accent">trabalhando ao seu lado</span></h2>
+  <p class="sub">Cada um cuida de uma tarefa que hoje te toma horas. Toda saída vem com o aviso de que a
+  conferência final é sua — a IA acelera, você decide.</p>
   <div class="feats">
-    <!-- REPETIR: 1 card .feat por agente do produto, traduzido pra BENEFÍCIO do cliente final
-         (nunca "Agente 3 / cron" — sempre "Radar de oportunidades", "Pós-venda que pede indicação"...). -->
-    <div class="feat"><div class="ic">💬</div>
-      <div><h3>Atendente 24/7 que qualifica e agenda</h3>
-      <p>Responde na hora, qualquer hora. Faz as perguntas certas do seu nicho, apresenta a oferta
-      que combina e já propõe o próximo passo.</p></div></div>
-    <div class="feat"><div class="ic">🔁</div>
-      <div><h3>Follow-up automático que nunca esquece</h3>
-      <p>Cliente que parou de responder — o sistema retoma a conversa no momento certo, com
-      naturalidade, até fechar ou desistir de vez.</p></div></div>
+    <div class="feat"><div class="ic">📅</div>
+      <div><h3>Calendário de obrigações</h3>
+      <p>Diga o regime e a competência: o sistema lista as obrigações com a data fatal já ajustada para
+      dia útil (feriados e antecipação) e joga tudo na sua agenda de prazos.</p></div></div>
+    <div class="feat"><div class="ic">🏷️</div>
+      <div><h3>Triagem e enquadramento</h3>
+      <p>Cole os dados da empresa e receba ficha, regime sugerido, obrigações aplicáveis, documentos a
+      pedir e um parecer preliminar — pronto pra revisar.</p></div></div>
+    <div class="feat"><div class="ic">📨</div>
+      <div><h3>Comunicado ao cliente</h3>
+      <p>Digite a situação do mês e receba um texto claro pro empresário entender o que pagar, os prazos e
+      as pendências. Copiar e enviar.</p></div></div>
+    <div class="feat"><div class="ic">💡</div>
+      <div><h3>Consultor tributário</h3>
+      <p>Tire dúvidas e receba uma orientação fundamentada e objetiva, sempre remetendo à legislação
+      vigente — um ponto de partida na hora.</p></div></div>
+    <div class="feat"><div class="ic">⚖️</div>
+      <div><h3>Resposta ao Fisco</h3>
+      <p>Cole a intimação e receba uma minuta de resposta estruturada para revisar e protocolar. O dia não
+      para mais por causa de uma notificação.</p></div></div>
   </div>
 </div></section>
 
 <!-- 4. COMO FUNCIONA -->
 <section><div class="wrap">
   <p class="eyebrow">// Como funciona na prática</p>
-  <h2>Do primeiro contato ao negócio fechado</h2>
-  <p class="sub">Você coloca um link na bio, no anúncio ou um QR Code no ponto. Quem clicar cai
-  direto no seu assistente — e o resto acontece sozinho.</p>
+  <h2>Do login ao trabalho pronto</h2>
+  <p class="sub">Tudo pelo navegador, sem instalar nada na sua máquina e sem enviar arquivo nenhum.</p>
   <div class="flow">
-    <!-- REPETIR: 5 passos .step (com .arrow entre eles) seguindo o funil do nicho. -->
-    <div class="step"><div class="n">1</div><div><b>O cliente chega</b><span>pelo link na bio, anúncio ou QR Code</span></div></div>
+    <div class="step"><div class="n">1</div><div><b>Você faz login</b><span>cada pessoa do escritório com o seu acesso</span></div></div>
     <div class="arrow">↓</div>
-    <div class="step"><div class="n">2</div><div><b>A IA qualifica</b><span>com as perguntas certas do seu nicho</span></div></div>
+    <div class="step"><div class="n">2</div><div><b>Escolhe o assistente e digita</b><span>regime, dados da empresa, dúvida ou a intimação colada</span></div></div>
     <div class="arrow">↓</div>
-    <div class="step"><div class="n">3</div><div><b>Persegue até fechar</b><span>follow-up automático — nenhum cliente esfria</span></div></div>
+    <div class="step"><div class="n">3</div><div><b>Recebe pronto, confere e usa</b><span>salvo no histórico e na agenda — você revisa e segue</span></div></div>
   </div>
 </div></section>
 
 <!-- 5. O PAINEL -->
 <section><div class="wrap">
-  <p class="eyebrow">// Tudo na palma da mão</p>
-  <h2>Um painel pra acompanhar o que a IA está fazendo por você</h2>
-  <p class="sub">Você não fica no escuro: um painel simples mostra tudo em tempo real — e você
-  pode assumir qualquer conversa quando quiser.</p>
+  <p class="eyebrow">// Tudo num lugar só</p>
+  <h2>Um painel para a carteira inteira do escritório</h2>
+  <p class="sub">Suas empresas, as competências do mês, a agenda de prazos com destaque pros que vencem em
+  até 5 dias e o histórico de tudo que a IA já gerou.</p>
   <div class="panel-grid">
-    <!-- REPETIR: 4 cards .pcard com as abas REAIS do painel do produto. -->
-    <div class="pcard"><div class="e">👥</div><b>Clientes</b><span>sua carteira e o perfil de cada um</span></div>
-    <div class="pcard"><div class="e">💬</div><b>Conversas</b><span>todo o histórico do WhatsApp</span></div>
+    <div class="pcard"><div class="e">🏢</div><b>Empresas</b><span>sua carteira de clientes</span></div>
+    <div class="pcard"><div class="e">🗓️</div><b>Competências</b><span>o mês de referência de cada um</span></div>
+    <div class="pcard"><div class="e">⏰</div><b>Agenda de prazos</b><span>vencidos e a vencer em destaque</span></div>
+    <div class="pcard"><div class="e">📂</div><b>Histórico</b><span>todas as saídas geradas</span></div>
   </div>
-  <a class="btn ghost" href="{{DEMO_URL}}">Ver o painel ao vivo →</a>
+  <a class="btn ghost" href="http://localhost:8910/">Ver o painel ao vivo →</a>
 </div></section>
 
 <!-- 6. INVESTIMENTO -->
 <section class="invest"><div class="wrap">
   <p class="eyebrow">// 💰 Investimento</p>
-  <h2>Quanto custa ter um atendente que nunca dorme</h2>
+  <h2>Quanto custa devolver horas pro seu mês</h2>
   <div class="prices">
     <div class="price">
       <div class="label">Implementação · pagamento único</div>
-      <div class="val">{{PRECO_IMPLEMENTACAO}}</div>
-      <p>Deixamos tudo pronto e funcionando no seu número:</p>
+      <div class="val">R$ 1.497</div>
+      <p>Deixamos tudo pronto e funcionando para o seu escritório:</p>
       <ul>
         <li>Instalação completa do sistema</li>
-        <li>Conexão do seu WhatsApp</li>
-        <li>Importação dos seus dados atuais</li>
-        <li>Treinamento pra você operar no dia a dia</li>
+        <li>Acessos para a sua equipe</li>
+        <li>Cadastro inicial da sua carteira</li>
+        <li>Treinamento pra usar no dia a dia</li>
       </ul>
     </div>
     <div class="price">
       <div class="label">Mensalidade</div>
-      <div class="val">{{PRECO_MENSAL}}<small>/mês</small></div>
+      <div class="val">R$ 197<small>/mês</small></div>
       <p>Pra você não precisar se preocupar com nada:</p>
       <ul>
-        <li>Operação e monitoramento contínuos</li>
-        <li>Ajustes finos no atendimento</li>
+        <li>Operação e hospedagem do sistema</li>
         <li>Suporte direto com a gente</li>
-        <li>Melhorias e atualizações do sistema</li>
+        <li>Melhorias e atualizações</li>
+        <li>Sem fidelidade escondida</li>
       </ul>
     </div>
   </div>
   <div class="anchor">
-    <!-- REPETIR: ancoragem de preço no resultado do nicho (no Corretor: "uma visita a mais fechada paga o ano"). -->
-    <p>Faça a conta: <span class="hl">quanto você perde por ano</span> por demora no atendimento?
-    <span class="hl">Um único negócio a mais já paga o ano inteiro do sistema.</span> E ele trabalha
-    pra você todos os dias, em todas as conversas, sem folga.</p>
+    <p>Faça a conta: <span class="hl">uma única multa por atraso evitada</span> já paga meses do sistema.
+    Some as <span class="hl">horas que você devolve ao mês</span> e o investimento se paga sozinho — todo mês,
+    em toda competência.</p>
   </div>
 </div></section>
 
 <!-- 7. FAQ -->
 <section><div class="wrap">
   <p class="eyebrow">// Perguntas frequentes</p>
-  <h2>O que todo cliente pergunta</h2>
+  <h2>O que todo escritório pergunta</h2>
   <div class="faq">
-    <!-- REPETIR: 5 <details> com as objeções reais do nicho. Manter sempre estas duas (universais): -->
     <details>
-      <summary>Funciona no meu número atual de WhatsApp?</summary>
-      <div class="a">Sim. O sistema é conectado ao seu número — seus clientes continuam falando com
-      o mesmo contato de sempre, sem mudar nada do lado deles.</div>
+      <summary>A IA substitui o contador?</summary>
+      <div class="a">Não — e não deve. O sistema acelera o trabalho repetitivo, mas toda saída traz o aviso
+      de que a conferência e a responsabilidade técnica são do contador. Você decide o que vai pra frente.</div>
+    </details>
+    <details>
+      <summary>Preciso enviar documentos ou planilhas?</summary>
+      <div class="a">Não. O sistema é texto: você digita ou cola a informação. Ele nunca lê PDF, XML ou
+      extrato — assim nenhum número é "lido errado" de um arquivo e levado pra um lançamento.</div>
     </details>
     <details>
       <summary>Os dados dos meus clientes são meus?</summary>
-      <div class="a">Sim. Seu banco de dados é exclusivo seu — sua carteira não é compartilhada com
-      ninguém. E o sistema respeita a LGPD: qualquer cliente que responder "SAIR" deixa de receber
-      mensagens automaticamente.</div>
+      <div class="a">Sim. O banco de dados é exclusivo do seu escritório, com sigilo respeitado e regras de
+      acesso por usuário. Sua carteira não é compartilhada com ninguém.</div>
+    </details>
+    <details>
+      <summary>Preciso instalar algo no computador?</summary>
+      <div class="a">Não. Funciona pelo navegador, com login e senha. Cada pessoa do escritório acessa do
+      seu próprio computador.</div>
+    </details>
+    <details>
+      <summary>Ele calcula o imposto e emite a guia?</summary>
+      <div class="a">Não. O sistema organiza prazos e gera textos de apoio; ele não faz a apuração oficial
+      nem emite guia. O cálculo definitivo continua sendo seu, com as ferramentas oficiais.</div>
     </details>
   </div>
 </div></section>
 
 <!-- 8. CTA FINAL -->
 <section class="cta"><div class="wrap">
-  <h2>Pronto pra não perder mais nenhum cliente?</h2>
-  <p>Me chama no WhatsApp. Te mostro o sistema funcionando ao vivo e em poucos dias ele está
-  atendendo no seu número.</p>
-  <!-- ALUNO: troque SEUNUMERO pelo seu WhatsApp com DDI, ex: 5511999999999 -->
-  <a class="btn-wa" href="https://wa.me/SEUNUMERO">💬 Quero na minha operação</a>
+  <h2>Pronto pra ganhar tempo no próximo mês?</h2>
+  <p>Me chama no WhatsApp. Te mostro o sistema funcionando ao vivo e em poucos dias ele está pronto pro
+  seu escritório.</p>
+  <!-- REVENDEDOR: troque SEUNUMERO pelo seu WhatsApp com DDI, ex: 5511999999999 -->
+  <a class="btn-wa" href="https://wa.me/SEUNUMERO">💬 Quero no meu escritório</a>
   <p class="note">Sem fidelidade escondida. Implementação única + mensalidade simples.</p>
 </div></section>
 
-<footer>Assistente de IA · Contábil · Atendimento 24h no WhatsApp</footer>
+<footer>Assistente de IA para contabilidade · Acelera o trabalho fiscal do escritório</footer>
 
 </body>
 </html>
