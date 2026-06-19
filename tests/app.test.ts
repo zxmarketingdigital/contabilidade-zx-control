@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { handleRequest, type AppDeps } from "../src/app";
 import { AgendaMemoria } from "../src/agenda";
+import { SaidasMemoria } from "../src/saidas";
 import type { AuthEnv } from "../src/auth";
 
 const ENV: AuthEnv = { SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_KEY: "svc" };
@@ -9,6 +10,7 @@ const ENV: AuthEnv = { SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_K
 function deps(over: Partial<AppDeps> = {}): AppDeps {
   return {
     agenda: new AgendaMemoria(),
+    saidas: new SaidasMemoria(),
     llm: async () => "orientação",
     verify: async () => ({ id: "u1", email: "c@e.com" }), // token "válido" nos testes
     ...over,
@@ -76,6 +78,53 @@ describe("fluxo autenticado — grava-vs-lê via HTTP", () => {
       ENV,
       deps(),
     );
+    expect(res.status).toBe(400);
+  });
+});
+
+describe("agentes texto (2-5) + histórico de saídas", () => {
+  function postAg(path: string, body: unknown): Request {
+    return new Request(`https://w${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer ok" },
+      body: JSON.stringify(body),
+    });
+  }
+
+  it("Consultor sem token → 401 e nada registrado", async () => {
+    const d = deps();
+    const req = new Request("https://w/api/agentes/consultor", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pergunta: "Posso optar pelo Simples?" }),
+    });
+    expect((await handleRequest(req, ENV, d)).status).toBe(401);
+    expect(await d.saidas.listar()).toHaveLength(0);
+  });
+
+  it("POST consultor (201) grava saída e GET /api/saidas lê o MESMO conteúdo", async () => {
+    const d = deps();
+    const resPost = await handleRequest(
+      postAg("/api/agentes/consultor", { empresaId: "emp-1", pergunta: "Posso optar pelo Simples?" }),
+      ENV,
+      d,
+    );
+    expect(resPost.status).toBe(201);
+    const saida = (await resPost.json()) as { conteudo: string; agente: string };
+    expect(saida.agente).toBe("consultor");
+
+    const resGet = await handleRequest(
+      new Request("https://w/api/saidas?empresaId=emp-1", { headers: { Authorization: "Bearer ok" } }),
+      ENV,
+      d,
+    );
+    const lista = (await resGet.json()) as { conteudo: string }[];
+    expect(lista).toHaveLength(1);
+    expect(lista[0]?.conteudo).toBe(saida.conteudo); // grava-vs-lê
+  });
+
+  it("input inválido → 400", async () => {
+    const res = await handleRequest(postAg("/api/agentes/fisco", { intimacao: "curto" }), ENV, deps());
     expect(res.status).toBe(400);
   });
 });

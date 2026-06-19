@@ -15,9 +15,13 @@
 // ════════════════════════════════════════════════════════════════════════
 
 import { z } from "zod";
-import { DISCLAIMER, REGIME_LABEL, REGIMES } from "../config";
+import { REGIME_LABEL, REGIMES } from "../config";
 import { calendarioObrigacoes, type ObrigacaoCalculada } from "../prazos";
 import type { AgendaRepo, PrazoRow } from "../agenda";
+import { comDisclaimer, gerarComFallback, PROIBICAO_VALOR_LEI, type LLM } from "./base";
+
+export { comDisclaimer } from "./base";
+export type { LLM } from "./base";
 
 export const calendarioInputSchema = z.object({
   empresaId: z.string().min(1),
@@ -37,12 +41,9 @@ export interface CalendarioResultado {
   texto: string;
 }
 
-/** Função de IA injetável (default: wrapper Gemini congelado). Facilita teste. */
-export type LLM = (prompt: string) => Promise<string>;
-
 /**
  * Monta o prompt da orientação. Exposto para teste do invariante "não afirma
- * valor/lei": o texto de proibição TEM que estar aqui.
+ * valor/lei": o bloco de proibição TEM que estar aqui.
  */
 export function montarPromptCalendario(
   input: CalendarioInput,
@@ -56,18 +57,9 @@ export function montarPromptCalendario(
     lista,
     "",
     "Escreva uma orientação curta e clara para o contador organizar o mês.",
-    "REGRAS OBRIGATÓRIAS:",
-    "- NÃO afirme valores de imposto, alíquotas ou bases de cálculo.",
-    "- NÃO cite número de artigo, lei ou norma específica; remeta à 'legislação vigente'.",
-    "- Não invente obrigações além das listadas. Linguagem objetiva, em português.",
+    "Não invente obrigações além das listadas. Linguagem objetiva, em português.",
+    PROIBICAO_VALOR_LEI,
   ].join("\n");
-}
-
-/** Garante o disclaimer no fim do texto (idempotente — não duplica). */
-export function comDisclaimer(texto: string): string {
-  const t = texto.trimEnd();
-  if (t.includes(DISCLAIMER)) return t;
-  return `${t}\n\n${DISCLAIMER}`;
 }
 
 /**
@@ -95,14 +87,8 @@ export async function gerarCalendario(
       )
     : [];
 
-  // 3. Orientação em linguagem natural (IA só redige).
-  let orientacao = "";
-  try {
-    orientacao = await deps.llm(montarPromptCalendario(input, obrigacoes));
-  } catch {
-    // Falha da IA não derruba o calendário: as datas (o que importa) já estão gravadas.
-    orientacao = "Não foi possível gerar a orientação automática agora. Confira as obrigações acima.";
-  }
+  // 3. Orientação em linguagem natural (IA só redige; falha não derruba as datas).
+  const orientacao = await gerarComFallback(deps.llm, montarPromptCalendario(input, obrigacoes));
 
   const titulo = `Calendário ${REGIME_LABEL[input.regime]} — ${String(input.competencia.mes).padStart(2, "0")}/${input.competencia.ano}`;
   return {

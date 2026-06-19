@@ -8,6 +8,7 @@
 
 import { handleRequest, type AppDeps } from "./app";
 import { AgendaSupabase } from "./supabase-agenda";
+import { SaidasSupabase } from "./saidas";
 import { geminiFlash } from "./gemini/client";
 
 export interface Env {
@@ -20,6 +21,7 @@ export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const deps: AppDeps = {
       agenda: new AgendaSupabase(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY),
+      saidas: new SaidasSupabase(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY),
       llm: (prompt) => geminiFlash(prompt, { GEMINI_API_KEY: env.GEMINI_API_KEY }),
     };
     return handleRequest(req, env, deps);
