@@ -35,8 +35,59 @@
       <span class="userbox" id="userbox"></span>
       <button class="btn btn-sm" id="logout">Sair</button>
     </header>
-    <nav class="tabs" id="tabs"></nav>
-    <main id="view"></main>
+
+    <nav class="tabs" id="tabs">
+      <button data-tab="agentes" class="active">Agentes</button>
+      <button data-tab="empresas">Empresas</button>
+      <button data-tab="competencias">Competências</button>
+      <button data-tab="agenda">Agenda de prazos</button>
+      <button data-tab="saidas">Histórico</button>
+    </nav>
+
+    <main>
+      <!-- Agentes -->
+      <section data-view="agentes">
+        <div class="section-title">Agentes de IA</div>
+        <div class="grid-cards" id="cards-agentes"></div>
+      </section>
+
+      <!-- Empresas (CRUD) -->
+      <section data-view="empresas" hidden>
+        <div class="toolbar">
+          <div class="section-title" style="margin: 0">Empresas-cliente</div>
+          <span class="spacer"></span>
+          <button class="btn btn-primary btn-sm" id="novo-empresa">+ Novo cliente</button>
+        </div>
+        <div id="emp-tbl"></div>
+      </section>
+
+      <!-- Competências (CRUD) -->
+      <section data-view="competencias" hidden>
+        <div class="toolbar">
+          <div class="section-title" style="margin: 0">Competências</div>
+          <span class="spacer"></span>
+          <button class="btn btn-primary btn-sm" id="novo-competencia">+ Novo período</button>
+        </div>
+        <div id="comp-tbl"></div>
+      </section>
+
+      <!-- Agenda de prazos (CRUD: agente grava + entrada manual) -->
+      <section data-view="agenda" hidden>
+        <div class="toolbar">
+          <div class="section-title" style="margin: 0">Agenda de prazos</div>
+          <span class="spacer"></span>
+          <label style="width: 260px; margin: 0"><select id="ag-emp"></select></label>
+          <button class="btn btn-primary btn-sm" id="novo-prazo">+ Novo prazo</button>
+        </div>
+        <div id="ag-tbl"></div>
+      </section>
+
+      <!-- Histórico de saídas (somente leitura) -->
+      <section data-view="saidas" hidden>
+        <div class="section-title">Histórico de saídas</div>
+        <div id="sa-tbl"></div>
+      </section>
+    </main>
   </div>
 
   <div id="toast"></div>

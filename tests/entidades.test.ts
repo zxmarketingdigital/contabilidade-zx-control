@@ -120,4 +120,25 @@ describe("CRUD competências + status de prazo", () => {
     );
     expect(res.status).toBe(400);
   });
+
+  it("POST /api/prazos cria prazo manual e aparece na agenda", async () => {
+    const d = deps();
+    const res = await handleRequest(
+      new Request("https://w/api/prazos", { method: "POST", headers: AUTH, body: JSON.stringify({ empresaId: "emp-1", sigla: "ISS", descricao: "ISS municipal", dataFatal: "2026-07-10" }) }),
+      ENV,
+      d,
+    );
+    expect(res.status).toBe(201);
+    const lista = await d.agenda.listarPrazos("emp-1");
+    expect(lista.find((p) => p.sigla === "ISS")?.dataFatal).toBe("2026-07-10");
+  });
+
+  it("POST /api/prazos com data inválida → 400", async () => {
+    const res = await handleRequest(
+      new Request("https://w/api/prazos", { method: "POST", headers: AUTH, body: JSON.stringify({ empresaId: "e", sigla: "X", descricao: "y", dataFatal: "10/07/2026" }) }),
+      ENV,
+      deps(),
+    );
+    expect(res.status).toBe(400);
+  });
 });

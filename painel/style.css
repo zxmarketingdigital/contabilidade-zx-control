@@ -4,22 +4,22 @@
    acento ativo, JetBrains Mono pra dados. NUNCA inventar cor/fonte fora daqui.
    ════════════════════════════════════════════════════════════════════════ */
 :root {
-  --primary: #d97706;
-  --primary-light: #f59e0b;
-  --primary-bright: #fcd34d;
-  --primary-dark: #92400e;
-  --bg: #0d0d0d;
-  --bg-alt: #0a0a0a;
-  --surface: #1a1a1a;
+  --primary: #D97706;
+  --primary-light: #F59E0B;
+  --primary-bright: #FCD34D;
+  --primary-dark: #92400E;
+  --bg: #0D0D0D;
+  --bg-alt: #0A0A0A;
+  --surface: #1A1A1A;
   --surface2: #222222;
-  --border: #2a2a2a;
+  --border: #2A2A2A;
   --border-light: #333333;
-  --text: #e2e8f0;
-  --text-secondary: #9ca3af;
-  --muted: #6b7280;
-  --green: #4ade80;
-  --red: #ef4444;
-  --indigo: #818cf8;
+  --text: #E2E8F0;
+  --text-secondary: #9CA3AF;
+  --muted: #6B7280;
+  --green: #4ADE80;
+  --red: #EF4444;
+  --indigo: #818CF8;
   --radius: 10px;
   --radius-card: 14px;
   --ui: "Inter", system-ui, sans-serif;

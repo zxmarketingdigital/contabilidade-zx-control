@@ -137,6 +137,13 @@ const server = createServer(async (req, res) => {
     if (!eid) return json(res, { error: "empresaId obrigatório" }, 400);
     return json(res, state.prazos.filter((p) => p.empresaId === eid).sort((a, b) => a.dataFatal.localeCompare(b.dataFatal)));
   }
+  if (path === "/prazos" && m === "POST") {
+    const b = await readBody(req);
+    if (!b.empresaId || !b.sigla || !b.descricao || !/^\d{4}-\d{2}-\d{2}$/.test(b.dataFatal || "")) return json(res, { error: "Prazo inválido" }, 400);
+    const row = { id: novoId("prz"), empresaId: b.empresaId, sigla: b.sigla, descricao: b.descricao, dataFatal: b.dataFatal, status: "pendente" };
+    state.prazos.push(row);
+    return json(res, row, 201);
+  }
   const prazoStatus = reg(/^\/prazos\/([^/]+)\/status$/);
   if (prazoStatus && m === "PUT") {
     const b = await readBody(req);

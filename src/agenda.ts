@@ -6,6 +6,7 @@
 // há uma implementação em memória (demo/teste) e uma sobre Supabase (produção).
 // ════════════════════════════════════════════════════════════════════════
 
+import { z } from "zod";
 import { PRAZO_ALERTA_DIAS } from "./config";
 
 export interface PrazoNovo {
@@ -14,6 +15,14 @@ export interface PrazoNovo {
   descricao: string;
   dataFatal: string; // ISO YYYY-MM-DD (vindo de src/prazos.ts, já antecipado)
 }
+
+/** Entrada de prazo MANUAL pelo painel (a agenda também recebe do Agente 1). */
+export const prazoManualSchema = z.object({
+  empresaId: z.string().min(1),
+  sigla: z.string().min(1),
+  descricao: z.string().min(1),
+  dataFatal: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "data no formato YYYY-MM-DD"),
+});
 
 export interface PrazoRow extends PrazoNovo {
   id: string;
