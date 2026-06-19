@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contabilidade ZX Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+  <script src="config.js"></script>
+</head>
+<body>
+  <!-- ── Login ── -->
+  <section id="login">
+    <form class="login-card" id="login-form">
+      <div class="eyebrow">ZX Control · Contabilidade</div>
+      <h1>Acesso ao escritório</h1>
+      <div class="sub" id="login-sub">Entre com seu e-mail e senha.</div>
+      <label class="field"><span>E-mail</span><input type="email" id="login-email" required /></label>
+      <label class="field"><span>Senha</span><input type="password" id="login-pass" required /></label>
+      <button class="btn btn-primary" type="submit" style="width: 100%">Entrar</button>
+      <div class="sub" id="login-err" style="color: var(--red); margin-top: 12px"></div>
+    </form>
+  </section>
+
+  <!-- ── App ── -->
+  <div id="app" class="hidden">
+    <header class="top">
+      <span class="dot"></span>
+      <h1>Contabilidade ZX Control</h1>
+      <span class="spacer"></span>
+      <span class="userbox" id="userbox"></span>
+      <button class="btn btn-sm" id="logout">Sair</button>
+    </header>
+    <nav class="tabs" id="tabs"></nav>
+    <main id="view"></main>
+  </div>
+
+  <div id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
