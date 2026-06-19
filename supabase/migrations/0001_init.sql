@@ -69,6 +69,15 @@ alter table competencias     enable row level security;
 alter table prazos           enable row level security;
 alter table saidas_geradas   enable row level security;
 
+-- O papel `authenticated` existe no Supabase (gerenciado). Em Postgres vanilla
+-- (CI smoke-db) ele não existe — cria de forma idempotente para a policy poder
+-- referenciá-lo. No Supabase o IF NOT EXISTS pula (papel já presente).
+do $$ begin
+  if not exists (select 1 from pg_roles where rolname = 'authenticated') then
+    create role authenticated nologin;
+  end if;
+end $$;
+
 do $$
 declare t text;
 begin
