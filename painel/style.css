@@ -117,6 +117,34 @@ nav.tabs button.active {
   border-color: rgba(217, 119, 6, 0.35);
   color: var(--primary-bright);
 }
+nav.tabs { border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 2px; }
+
+/* ── Dashboard / Início ── */
+.dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+.stat-card {
+  text-align: left; cursor: pointer; padding: 18px 20px; border-radius: var(--radius-card);
+  background: var(--surface); border: 1px solid var(--border-light);
+  display: flex; flex-direction: column; gap: 4px; transition: border-color 0.15s, transform 0.1s;
+}
+.stat-card:hover { transform: translateY(-2px); }
+.stat-card.static { cursor: default; }
+.stat-card.static:hover { transform: none; }
+.stat-num { font-family: var(--mono); font-size: 2.2rem; font-weight: 700; line-height: 1; }
+.stat-lbl { font-size: 12px; color: var(--text-secondary); }
+.stat-card.c-red    { border-top: 3px solid var(--red); }
+.stat-card.c-red    .stat-num { color: var(--red); }
+.stat-card.c-amber  { border-top: 3px solid var(--primary-light); }
+.stat-card.c-amber  .stat-num { color: var(--primary-light); }
+.stat-card.c-green  { border-top: 3px solid var(--green); }
+.stat-card.c-green  .stat-num { color: var(--green); }
+.stat-card.c-indigo { border-top: 3px solid var(--indigo); }
+.stat-card.c-indigo .stat-num { color: var(--indigo); }
+
+/* ── Filtro inline ── */
+.inline-check { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+.inline-check input { width: auto; }
+.inline-check span { display: inline; }
+.obs { display: inline-block; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 
 main { padding: 20px 22px 60px; max-width: 1160px; margin: 0 auto; }
 .section-title { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; margin: 4px 0 16px; }
@@ -171,6 +199,12 @@ td { padding: 11px 14px; font-size: 13px; color: var(--text-secondary); border-t
 td:first-child { color: var(--text); font-weight: 500; }
 tbody tr:nth-child(odd) { background: rgba(255, 255, 255, 0.012); }
 tbody tr:hover { background: rgba(217, 119, 6, 0.045); }
+/* Linha inteira tintada por urgência (a agenda salta aos olhos) */
+tr.row-vencido td { background: rgba(239, 68, 68, 0.09); }
+tr.row-vencido td:first-child { box-shadow: inset 3px 0 0 var(--red); color: #fecaca; }
+tr.row-alerta td { background: rgba(245, 158, 11, 0.07); }
+tr.row-alerta td:first-child { box-shadow: inset 3px 0 0 var(--primary-light); }
+tr.row-inativo { opacity: 0.5; }
 .toolbar { display: flex; align-items: center; margin-bottom: 14px; gap: 10px; }
 .toolbar .spacer { flex: 1; }
 
@@ -239,3 +273,11 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
 }
 #toast.show { opacity: 1; transform: translateY(0); }
 .empty { color: var(--muted); font-size: 13px; padding: 22px; text-align: center; }
+
+/* ── Spinner âmbar ── */
+.spinner {
+  display: inline-block; width: 13px; height: 13px; vertical-align: -2px; margin-right: 6px;
+  border: 2px solid rgba(217, 119, 6, 0.25); border-top-color: var(--primary);
+  border-radius: 50%; animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

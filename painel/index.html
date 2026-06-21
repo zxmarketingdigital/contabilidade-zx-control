@@ -37,54 +37,108 @@
     </header>
 
     <nav class="tabs" id="tabs">
-      <button data-tab="agentes" class="active">Agentes</button>
-      <button data-tab="empresas">Empresas</button>
-      <button data-tab="competencias">Competências</button>
+      <button data-tab="inicio" class="active">Início</button>
+      <button data-tab="agentes">Assistentes</button>
+      <button data-tab="empresas">Clientes</button>
+      <button data-tab="crm">CRM</button>
+      <button data-tab="competencias">Meses de trabalho</button>
       <button data-tab="agenda">Agenda de prazos</button>
-      <button data-tab="saidas">Histórico</button>
+      <button data-tab="relatorio">Relatório</button>
+      <button data-tab="saidas">O que já gerei</button>
     </nav>
 
     <main>
-      <!-- Agentes -->
-      <section data-view="agentes">
-        <div class="section-title">Agentes de IA</div>
+      <!-- Início (dashboard) -->
+      <section data-view="inicio">
+        <div class="section-title">Olá! Veja o que precisa de atenção hoje</div>
+        <div class="dash-grid" id="dash-cards"></div>
+        <div class="section-title" style="margin-top: 28px; font-size: 0.95rem">Próximos vencimentos</div>
+        <div id="dash-prox"></div>
+      </section>
+
+      <!-- Assistentes -->
+      <section data-view="agentes" hidden>
+        <div class="section-title">Assistentes de IA</div>
         <div class="grid-cards" id="cards-agentes"></div>
       </section>
 
-      <!-- Empresas (CRUD) -->
+      <!-- Clientes (CRUD) -->
       <section data-view="empresas" hidden>
         <div class="toolbar">
-          <div class="section-title" style="margin: 0">Empresas-cliente</div>
+          <div class="section-title" style="margin: 0">Seus clientes</div>
           <span class="spacer"></span>
+          <label style="width: 190px; margin: 0"><select id="emp-filtro">
+            <option value="">Todos os regimes</option>
+          </select></label>
+          <label class="inline-check"><input type="checkbox" id="emp-inativos" /> <span>Mostrar inativos</span></label>
           <button class="btn btn-primary btn-sm" id="novo-empresa">+ Novo cliente</button>
         </div>
         <div id="emp-tbl"></div>
       </section>
 
-      <!-- Competências (CRUD) -->
+      <!-- CRM (leads) -->
+      <section data-view="crm" hidden>
+        <div class="toolbar">
+          <div class="section-title" style="margin: 0">CRM — Leads</div>
+          <span class="spacer"></span>
+          <label style="width: 190px; margin: 0"><select id="crm-filtro"></select></label>
+          <button class="btn btn-primary btn-sm" id="novo-lead">+ Novo lead</button>
+        </div>
+        <div class="dash-grid" id="crm-funil" style="margin-bottom: 18px"></div>
+        <div id="crm-tbl"></div>
+      </section>
+
+      <!-- Meses de trabalho (CRUD) -->
       <section data-view="competencias" hidden>
         <div class="toolbar">
-          <div class="section-title" style="margin: 0">Competências</div>
+          <div class="section-title" style="margin: 0">Meses de trabalho</div>
           <span class="spacer"></span>
           <button class="btn btn-primary btn-sm" id="novo-competencia">+ Novo período</button>
         </div>
         <div id="comp-tbl"></div>
       </section>
 
-      <!-- Agenda de prazos (CRUD: agente grava + entrada manual) -->
+      <!-- Agenda de prazos -->
       <section data-view="agenda" hidden>
         <div class="toolbar">
           <div class="section-title" style="margin: 0">Agenda de prazos</div>
           <span class="spacer"></span>
           <label style="width: 260px; margin: 0"><select id="ag-emp"></select></label>
+          <button class="btn btn-sm" id="export-ics">Exportar .ics</button>
           <button class="btn btn-primary btn-sm" id="novo-prazo">+ Novo prazo</button>
         </div>
         <div id="ag-tbl"></div>
       </section>
 
-      <!-- Histórico de saídas (somente leitura) -->
+      <!-- Relatório do escritório -->
+      <section data-view="relatorio" hidden>
+        <div class="section-title">Relatório do escritório</div>
+        <div class="dash-grid" id="rel-cards"></div>
+        <div class="section-title" style="margin-top: 28px; font-size: 0.95rem">Clientes com mais atrasos</div>
+        <div id="rel-rank"></div>
+
+        <!-- Relatórios Financeiros -->
+        <div class="section-title" style="margin-top: 34px">Relatórios Financeiros</div>
+        <div class="dash-grid" id="fin-cards"></div>
+
+        <div class="toolbar" style="margin-top: 24px">
+          <div class="section-title" style="margin: 0; font-size: 0.95rem">Receitas</div>
+          <span class="spacer"></span>
+          <button class="btn btn-primary btn-sm" id="nova-receita">+ Nova receita</button>
+        </div>
+        <div id="rec-tbl"></div>
+
+        <div class="toolbar" style="margin-top: 22px">
+          <div class="section-title" style="margin: 0; font-size: 0.95rem">Custos</div>
+          <span class="spacer"></span>
+          <button class="btn btn-primary btn-sm" id="novo-custo">+ Novo custo</button>
+        </div>
+        <div id="cus-tbl"></div>
+      </section>
+
+      <!-- Histórico -->
       <section data-view="saidas" hidden>
-        <div class="section-title">Histórico de saídas</div>
+        <div class="section-title">O que já gerei pra você</div>
         <div id="sa-tbl"></div>
       </section>
     </main>

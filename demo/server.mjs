@@ -26,6 +26,9 @@ const state = {
   competencias: DB.competencias.map((x) => ({ ...x })),
   prazos: DB.prazos.map((x) => ({ ...x })),
   saidas: DB.saidas.map((x) => ({ ...x })),
+  leads: DB.leads.map((x) => ({ ...x })),
+  receitas: DB.receitas.map((x) => ({ ...x })),
+  custos: DB.custos.map((x) => ({ ...x })),
 };
 let seq = 1000;
 const novoId = (p) => `${p}${++seq}`;
@@ -175,6 +178,69 @@ const server = createServer(async (req, res) => {
     const row = { id: novoId("sai"), empresaId: b.empresaId ?? null, agente: tipo, titulo: titulos[tipo], conteudo: MOCK_AGENTE[tipo](), criadoEm: agora() };
     state.saidas.push(row);
     return json(res, row, 201);
+  }
+
+  // ── CRM: leads ──
+  if (path === "/leads" && m === "GET") return json(res, [...state.leads].sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm)));
+  if (path === "/leads" && m === "POST") {
+    const b = await readBody(req);
+    if (!b.nome) return json(res, { error: "Lead inválido" }, 400);
+    const row = { id: novoId("lead"), nome: b.nome, contato: b.contato || null, origem: b.origem || null, status: b.status || "novo", empresaId: null, proximaAcao: b.proximaAcao || null, dataAcao: b.dataAcao || null, observacao: b.observacao || null, criadoEm: agora() };
+    state.leads.push(row);
+    return json(res, row, 201);
+  }
+  const leadConv = reg(/^\/leads\/([^/]+)\/converter$/);
+  if (leadConv && m === "POST") {
+    const lead = state.leads.find((l) => l.id === leadConv[1]);
+    if (!lead) return json(res, { error: "Lead não encontrado" }, 404);
+    if (lead.empresaId) return json(res, { error: "Lead já convertido" }, 409);
+    const empresa = { id: novoId("emp"), razaoSocial: lead.nome, cnpj: null, regime: "simples", porte: null, observacao: null, inativo: false, criadoEm: agora() };
+    state.empresas.push(empresa);
+    lead.status = "convertido";
+    lead.empresaId = empresa.id;
+    return json(res, { lead, empresa }, 201);
+  }
+  const leadId = reg(/^\/leads\/([^/]+)$/);
+  if (leadId && m === "PUT") {
+    const b = await readBody(req);
+    const r = state.leads.find((l) => l.id === leadId[1]);
+    if (r) ["nome", "contato", "origem", "status", "proximaAcao", "dataAcao", "observacao"].forEach((k) => { if (b[k] !== undefined) r[k] = b[k]; });
+    return json(res, r || {});
+  }
+  if (leadId && m === "DELETE") { state.leads = state.leads.filter((l) => l.id !== leadId[1]); return json(res, { ok: true }); }
+
+  // ── Financeiro: receitas / custos / métricas ──
+  if (path === "/receitas" && m === "GET") return json(res, [...state.receitas].sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm)));
+  if (path === "/receitas" && m === "POST") {
+    const b = await readBody(req);
+    const row = { id: novoId("rec"), empresaId: b.empresaId || null, descricao: b.descricao || null, valor: Number(b.valor), tipo: b.tipo, data: b.data || null, criadoEm: agora() };
+    state.receitas.push(row);
+    return json(res, row, 201);
+  }
+  const recId = reg(/^\/receitas\/([^/]+)$/);
+  if (recId && m === "DELETE") { state.receitas = state.receitas.filter((r) => r.id !== recId[1]); return json(res, { ok: true }); }
+
+  if (path === "/custos" && m === "GET") return json(res, [...state.custos].sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm)));
+  if (path === "/custos" && m === "POST") {
+    const b = await readBody(req);
+    const row = { id: novoId("cus"), descricao: b.descricao, valor: Number(b.valor), tipo: b.tipo, data: b.data || null, criadoEm: agora() };
+    state.custos.push(row);
+    return json(res, row, 201);
+  }
+  const cusId = reg(/^\/custos\/([^/]+)$/);
+  if (cusId && m === "DELETE") { state.custos = state.custos.filter((c) => c.id !== cusId[1]); return json(res, { ok: true }); }
+
+  if (path === "/financeiro" && m === "GET") {
+    const round2 = (n) => Math.round(n * 100) / 100;
+    const somaT = (arr, t) => round2(arr.filter((x) => x.tipo === t).reduce((a, x) => a + Number(x.valor || 0), 0));
+    const mrr = somaT(state.receitas, "recorrente"), fixo = somaT(state.custos, "fixo_mensal"), ads = somaT(state.custos, "anuncios");
+    const custoMensalTotal = round2(fixo + ads);
+    const convertidos = state.leads.filter((l) => l.empresaId).length;
+    return json(res, {
+      mrr, receitaUnica: somaT(state.receitas, "unica"), custoFixoMensal: fixo, custoUnico: somaT(state.custos, "unico"),
+      investimentoAnuncios: ads, custoMensalTotal, lucroMensal: round2(mrr - custoMensalTotal),
+      cac: convertidos > 0 ? round2(ads / convertidos) : null, leadsConvertidos: convertidos,
+    });
   }
 
   return json(res, { error: "Not Found" }, 404);

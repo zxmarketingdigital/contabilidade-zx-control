@@ -80,3 +80,45 @@ export const saidas = [
   { id: "sai10", empresaId: "emp10", agente: "calendario", titulo: "Calendário Lucro Real — competência atual", conteudo: comDisc("Distribuidora Sul: mês com EFD-ICMS/IPI e DCTFWeb. As datas na agenda já estão antecipadas para dia útil quando caíam em fim de semana ou feriado."), criadoEm: iso(now - 10 * D) },
   { id: "sai11", empresaId: "emp12", agente: "comunicado", titulo: "Comunicado ao cliente — Verde Vida Hortifruti", conteudo: comDisc("Olá! Resumo do mês: DAS a pagar no prazo e tudo em dia com a documentação. Seguimos cuidando das obrigações da empresa."), criadoEm: iso(now - 11 * D) },
 ];
+
+// ── CRM: leads (pipeline; 2 já convertidos apontam p/ empresa existente → CAC) ─
+export const leads = [
+  { id: "lead1", nome: "Restaurante Sabor & Cia", contato: "(11) 98888-1111", origem: "Indicação", status: "novo", empresaId: null, proximaAcao: "Ligar para apresentar a proposta", dataAcao: dateOnly(1), observacao: "", criadoEm: iso(now - 2 * D) },
+  { id: "lead2", nome: "Pet Shop Amigo Fiel", contato: "contato@petfiel.com", origem: "Instagram", status: "contatado", empresaId: null, proximaAcao: "Enviar proposta por e-mail", dataAcao: dateOnly(2), observacao: "Tem 4 funcionários.", criadoEm: iso(now - 5 * D) },
+  { id: "lead3", nome: "Academia Corpo em Forma", contato: "(11) 97777-2222", origem: "Google", status: "reuniao_agendada", empresaId: null, proximaAcao: "Reunião terça 14h", dataAcao: dateOnly(3), observacao: "", criadoEm: iso(now - 7 * D) },
+  { id: "lead4", nome: "Loja Variedades da Praça", contato: "(11) 96666-3333", origem: "Indicação", status: "desqualificado", empresaId: null, proximaAcao: "", dataAcao: null, observacao: "Já tem contador.", criadoEm: iso(now - 10 * D) },
+  { id: "lead5", nome: "E-commerce ModaShop", contato: "financeiro@modashop.com", origem: "Anúncio", status: "contatado", empresaId: null, proximaAcao: "Follow-up por e-mail", dataAcao: dateOnly(1), observacao: "", criadoEm: iso(now - 4 * D) },
+  { id: "lead6", nome: "Barbearia Navalha de Ouro", contato: "(11) 95555-4444", origem: "Indicação", status: "novo", empresaId: null, proximaAcao: "Primeiro contato", dataAcao: dateOnly(2), observacao: "", criadoEm: iso(now - 1 * D) },
+  { id: "lead7", nome: "Consultório Dr. Almeida", contato: "(11) 94444-5555", origem: "Google", status: "reuniao_agendada", empresaId: null, proximaAcao: "Apresentar diagnóstico", dataAcao: dateOnly(4), observacao: "Migrando de outro escritório.", criadoEm: iso(now - 6 * D) },
+  { id: "lead8", nome: "Marcenaria Bom Corte", contato: "(11) 93333-6666", origem: "Anúncio", status: "contatado", empresaId: null, proximaAcao: "Enviar tabela de honorários", dataAcao: dateOnly(3), observacao: "", criadoEm: iso(now - 8 * D) },
+  { id: "lead9", nome: "Padaria Pão Quente LTDA", contato: "(11) 92222-7777", origem: "Indicação", status: "convertido", empresaId: "emp1", proximaAcao: "", dataAcao: null, observacao: "Virou cliente — abertura concluída.", criadoEm: iso(now - 130 * D) },
+  { id: "lead10", nome: "Oficina do Zé Mecânica ME", contato: "(11) 91111-8888", origem: "Anúncio", status: "convertido", empresaId: "emp11", proximaAcao: "", dataAcao: null, observacao: "Veio de campanha paga.", criadoEm: iso(now - 25 * D) },
+];
+
+// ── Financeiro: receitas (MRR = recorrentes) ──────────────────────────────────
+export const receitas = [
+  { id: "rec1", empresaId: "emp1", descricao: "Honorários mensais", valor: 650, tipo: "recorrente", data: dateOnly(-2), criadoEm: iso(now - 2 * D) },
+  { id: "rec2", empresaId: "emp3", descricao: "Honorários mensais", valor: 550, tipo: "recorrente", data: dateOnly(-2), criadoEm: iso(now - 2 * D) },
+  { id: "rec3", empresaId: "emp4", descricao: "Honorários mensais", valor: 1200, tipo: "recorrente", data: dateOnly(-2), criadoEm: iso(now - 2 * D) },
+  { id: "rec4", empresaId: "emp5", descricao: "Honorários mensais", valor: 900, tipo: "recorrente", data: dateOnly(-2), criadoEm: iso(now - 2 * D) },
+  { id: "rec5", empresaId: "emp6", descricao: "Honorários mensais", valor: 480, tipo: "recorrente", data: dateOnly(-2), criadoEm: iso(now - 2 * D) },
+  { id: "rec6", empresaId: "emp9", descricao: "Honorários mensais", valor: 800, tipo: "recorrente", data: dateOnly(-2), criadoEm: iso(now - 2 * D) },
+  { id: "rec7", empresaId: "emp10", descricao: "Honorários mensais", valor: 1500, tipo: "recorrente", data: dateOnly(-2), criadoEm: iso(now - 2 * D) },
+  { id: "rec8", empresaId: "emp12", descricao: "Honorários mensais", valor: 600, tipo: "recorrente", data: dateOnly(-2), criadoEm: iso(now - 2 * D) },
+  { id: "rec9", empresaId: "emp1", descricao: "Abertura de filial (avulso)", valor: 1500, tipo: "unica", data: dateOnly(-12), criadoEm: iso(now - 12 * D) },
+  { id: "rec10", empresaId: "emp7", descricao: "Parcelamento de débitos (avulso)", valor: 2200, tipo: "unica", data: dateOnly(-20), criadoEm: iso(now - 20 * D) },
+];
+
+// ── Financeiro: custos (fixo mensal / único / anúncios → CAC) ──────────────────
+export const custos = [
+  { id: "cus1", descricao: "Aluguel do escritório", valor: 1800, tipo: "fixo_mensal", data: dateOnly(-3), criadoEm: iso(now - 3 * D) },
+  { id: "cus2", descricao: "Sistema contábil + nuvem", valor: 450, tipo: "fixo_mensal", data: dateOnly(-3), criadoEm: iso(now - 3 * D) },
+  { id: "cus3", descricao: "Folha — assistente fiscal", valor: 2600, tipo: "fixo_mensal", data: dateOnly(-3), criadoEm: iso(now - 3 * D) },
+  { id: "cus4", descricao: "Energia e internet", valor: 380, tipo: "fixo_mensal", data: dateOnly(-3), criadoEm: iso(now - 3 * D) },
+  { id: "cus5", descricao: "Anúncios Google Ads", valor: 600, tipo: "anuncios", data: dateOnly(-3), criadoEm: iso(now - 3 * D) },
+  { id: "cus6", descricao: "Anúncios Meta (Instagram)", valor: 500, tipo: "anuncios", data: dateOnly(-3), criadoEm: iso(now - 3 * D) },
+  { id: "cus7", descricao: "Compra de impressora", valor: 1200, tipo: "unico", data: dateOnly(-20), criadoEm: iso(now - 20 * D) },
+  { id: "cus8", descricao: "Curso de atualização tributária", valor: 890, tipo: "unico", data: dateOnly(-30), criadoEm: iso(now - 30 * D) },
+  { id: "cus9", descricao: "Contador parceiro (terceirizado)", valor: 700, tipo: "fixo_mensal", data: dateOnly(-3), criadoEm: iso(now - 3 * D) },
+  { id: "cus10", descricao: "Material de escritório", valor: 220, tipo: "unico", data: dateOnly(-15), criadoEm: iso(now - 15 * D) },
+];

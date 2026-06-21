@@ -52,6 +52,15 @@ export class AgendaSupabase implements AgendaRepo {
     return (data as PrazoDb[]).map(toRow);
   }
 
+  async listarTodos(): Promise<PrazoRow[]> {
+    const { data, error } = await this.db
+      .from("prazos")
+      .select()
+      .order("data_fatal", { ascending: true });
+    if (error) throw new Error(`Falha ao ler prazos: ${error.message}`);
+    return (data as PrazoDb[]).map(toRow);
+  }
+
   async atualizarStatus(id: string, status: "pendente" | "cumprido"): Promise<void> {
     const { error } = await this.db.from("prazos").update({ status }).eq("id", id);
     if (error) throw new Error(`Falha ao atualizar prazo: ${error.message}`);

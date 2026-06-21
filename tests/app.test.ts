@@ -4,6 +4,8 @@ import { handleRequest, type AppDeps } from "../src/app";
 import { AgendaMemoria } from "../src/agenda";
 import { SaidasMemoria } from "../src/saidas";
 import { CompetenciasMemoria, EmpresasMemoria } from "../src/entidades";
+import { LeadsMemoria } from "../src/crm";
+import { ReceitasMemoria, CustosMemoria } from "../src/financeiro";
 import type { AuthEnv } from "../src/auth";
 
 const ENV: AuthEnv = { SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_KEY: "svc" };
@@ -14,6 +16,9 @@ function deps(over: Partial<AppDeps> = {}): AppDeps {
     saidas: new SaidasMemoria(),
     empresas: new EmpresasMemoria(),
     competencias: new CompetenciasMemoria(),
+    leads: new LeadsMemoria(),
+    receitas: new ReceitasMemoria(),
+    custos: new CustosMemoria(),
     llm: async () => "orientação",
     verify: async () => ({ id: "u1", email: "c@e.com" }), // token "válido" nos testes
     ...over,
@@ -75,13 +80,20 @@ describe("fluxo autenticado — grava-vs-lê via HTTP", () => {
     expect(prazos.find((p) => p.sigla === "DAS")?.dataFatal).toBe("2026-06-19");
   });
 
-  it("GET /api/prazos sem empresaId → 400", async () => {
+  it("GET /api/prazos sem empresaId → agenda completa do escritório (200)", async () => {
+    const d = deps();
+    await d.agenda.inserirPrazos([
+      { empresaId: "emp-1", sigla: "DAS", descricao: "x", dataFatal: "2026-06-19" },
+      { empresaId: "emp-2", sigla: "ISS", descricao: "y", dataFatal: "2026-06-20" },
+    ]);
     const res = await handleRequest(
       new Request("https://w/api/prazos", { headers: { Authorization: "Bearer ok" } }),
       ENV,
-      deps(),
+      d,
     );
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(200);
+    const prazos = (await res.json()) as { empresaId: string }[];
+    expect(prazos).toHaveLength(2); // cruza as empresas — alimenta o painel-início
   });
 });
 

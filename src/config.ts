@@ -88,6 +88,41 @@ export const OBRIGACOES_POR_REGIME: Record<Regime, ReadonlyArray<ObrigacaoBase>>
 /** Janela de destaque da agenda: prazos vencendo em ≤ N dias acendem (spec §6.3). */
 export const PRAZO_ALERTA_DIAS = 5;
 
+// ── CRM (leads) + Financeiro (receitas/custos) — fonte única dos enums ──────
+// Espelhado em painel/app.js (plain JS não importa TS). Se mudar aqui, muda lá.
+
+/** Pipeline do lead até virar empresa-cliente. */
+export const LEAD_STATUS = ["desqualificado", "novo", "contatado", "reuniao_agendada", "convertido"] as const;
+export type LeadStatus = (typeof LEAD_STATUS)[number];
+export const LEAD_STATUS_LABEL: Record<LeadStatus, string> = {
+  desqualificado: "Desqualificado",
+  novo: "Novo",
+  contatado: "Contatado",
+  reuniao_agendada: "Reunião agendada",
+  convertido: "Convertido",
+};
+
+/** Natureza da receita (base do MRR). */
+export const RECEITA_TIPO = ["recorrente", "unica"] as const;
+export type ReceitaTipo = (typeof RECEITA_TIPO)[number];
+
+/** Natureza do custo (fixo mensal, único, ou anúncios → alimenta o CAC). */
+export const CUSTO_TIPO = ["fixo_mensal", "unico", "anuncios"] as const;
+export type CustoTipo = (typeof CUSTO_TIPO)[number];
+
+/**
+ * Notificação de prazo fiscal (v1.1). O envio passa OBRIGATORIAMENTE pela engine
+ * anti-ban congelada (src/scheduler/dispatch) — esta constante só parametriza o
+ * consumo: janela inferior+superior em America/Sao_Paulo, rate-cap GLOBAL da linha
+ * emissora e o nome do agente. O resumo é diário; a dedup por dia (entity = data
+ * civil BRT) garante 1 envio/dia mesmo com cron de hora em hora.
+ */
+export const NOTIFICACAO = {
+  janela: { start: 8, end: 18 }, // horas BRT — fora disso a engine bloqueia
+  rateCap: { hora: 20, dia: 80 }, // default da engine, explícito aqui (um valor, um lugar)
+  agente: "prazo-diario",
+} as const;
+
 /**
  * Precificação white-label da proposta comercial (spec §9 N6). Fonte única —
  * docs/proposta.html e qualquer material comercial leem daqui (sem placeholder).

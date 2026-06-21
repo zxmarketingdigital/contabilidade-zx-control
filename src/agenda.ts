@@ -32,6 +32,8 @@ export interface PrazoRow extends PrazoNovo {
 export interface AgendaRepo {
   inserirPrazos(prazos: PrazoNovo[]): Promise<PrazoRow[]>;
   listarPrazos(empresaId: string): Promise<PrazoRow[]>;
+  /** Todos os prazos do escritório (alimenta o painel-início e o aviso de login). */
+  listarTodos(): Promise<PrazoRow[]>;
   atualizarStatus(id: string, status: "pendente" | "cumprido"): Promise<void>;
 }
 
@@ -50,6 +52,10 @@ export class AgendaMemoria implements AgendaRepo {
     return this.rows
       .filter((r) => r.empresaId === empresaId)
       .sort((a, b) => a.dataFatal.localeCompare(b.dataFatal));
+  }
+
+  async listarTodos(): Promise<PrazoRow[]> {
+    return [...this.rows].sort((a, b) => a.dataFatal.localeCompare(b.dataFatal));
   }
 
   async atualizarStatus(id: string, status: "pendente" | "cumprido"): Promise<void> {

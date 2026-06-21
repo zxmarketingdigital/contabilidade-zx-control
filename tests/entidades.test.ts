@@ -4,6 +4,8 @@ import { handleRequest, type AppDeps } from "../src/app";
 import { AgendaMemoria } from "../src/agenda";
 import { SaidasMemoria } from "../src/saidas";
 import { CompetenciasMemoria, EmpresasMemoria } from "../src/entidades";
+import { LeadsMemoria } from "../src/crm";
+import { ReceitasMemoria, CustosMemoria } from "../src/financeiro";
 import type { AuthEnv } from "../src/auth";
 
 const ENV: AuthEnv = { SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_KEY: "svc" };
@@ -15,6 +17,9 @@ function deps(): AppDeps {
     saidas: new SaidasMemoria(),
     empresas: new EmpresasMemoria(),
     competencias: new CompetenciasMemoria(),
+    leads: new LeadsMemoria(),
+    receitas: new ReceitasMemoria(),
+    custos: new CustosMemoria(),
     llm: async () => "x",
     verify: async () => ({ id: "u1" }),
   };

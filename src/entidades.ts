@@ -14,10 +14,16 @@ export const empresaInputSchema = z.object({
   cnpj: z.string().optional(),
   regime: z.enum(REGIMES),
   porte: z.string().optional(),
+  observacao: z.string().optional(),
+  inativo: z.boolean().optional(),
 });
 export type EmpresaInput = z.infer<typeof empresaInputSchema>;
+/** Atualização parcial (toggle inativo, editar observação, etc.). */
+export const empresaPatchSchema = empresaInputSchema.partial();
+export type EmpresaPatch = z.infer<typeof empresaPatchSchema>;
 export interface EmpresaRow extends EmpresaInput {
   id: string;
+  inativo: boolean;
   criadoEm: string;
 }
 
@@ -41,11 +47,13 @@ export interface CompetenciaRow {
 export interface EmpresasRepo {
   listar(): Promise<EmpresaRow[]>;
   criar(input: EmpresaInput): Promise<EmpresaRow>;
+  atualizar(id: string, patch: EmpresaPatch): Promise<EmpresaRow>;
   remover(id: string): Promise<void>;
 }
 export interface CompetenciasRepo {
   listar(empresaId?: string): Promise<CompetenciaRow[]>;
   criar(input: CompetenciaInput): Promise<CompetenciaRow>;
+  atualizarStatus(id: string, status: "aberta" | "fechada"): Promise<void>;
 }
 
 // ── Implementações em memória ─────────────────────────────────────────────
@@ -57,8 +65,14 @@ export class EmpresasMemoria implements EmpresasRepo {
     return [...this.rows];
   }
   async criar(input: EmpresaInput): Promise<EmpresaRow> {
-    const row: EmpresaRow = { ...input, id: `emp${++this.seq}`, criadoEm: this.agora() };
+    const row: EmpresaRow = { ...input, inativo: input.inativo ?? false, id: `emp${++this.seq}`, criadoEm: this.agora() };
     this.rows.push(row);
+    return row;
+  }
+  async atualizar(id: string, patch: EmpresaPatch): Promise<EmpresaRow> {
+    const row = this.rows.find((r) => r.id === id);
+    if (!row) throw new Error("Empresa não encontrada");
+    Object.assign(row, patch);
     return row;
   }
   async remover(id: string): Promise<void> {
@@ -85,6 +99,10 @@ export class CompetenciasMemoria implements CompetenciasRepo {
     this.rows.push(row);
     return row;
   }
+  async atualizarStatus(id: string, status: "aberta" | "fechada"): Promise<void> {
+    const row = this.rows.find((r) => r.id === id);
+    if (row) row.status = status;
+  }
 }
 
 // ── Implementações Supabase ───────────────────────────────────────────────
@@ -105,9 +123,28 @@ export class EmpresasSupabase implements EmpresasRepo {
   async criar(input: EmpresaInput): Promise<EmpresaRow> {
     const { data, error } = await this.db
       .from("empresas_cliente")
-      .insert({ razao_social: input.razaoSocial, cnpj: input.cnpj ?? null, regime: input.regime, porte: input.porte ?? null })
+      .insert({
+        razao_social: input.razaoSocial,
+        cnpj: input.cnpj ?? null,
+        regime: input.regime,
+        porte: input.porte ?? null,
+        observacao: input.observacao ?? null,
+        inativo: input.inativo ?? false,
+      })
       .select()
       .single();
+    if (error) throw new Error(error.message);
+    return mapEmpresa(data as Record<string, unknown>);
+  }
+  async atualizar(id: string, patch: EmpresaPatch): Promise<EmpresaRow> {
+    const upd: Record<string, unknown> = {};
+    if (patch.razaoSocial !== undefined) upd.razao_social = patch.razaoSocial;
+    if (patch.cnpj !== undefined) upd.cnpj = patch.cnpj ?? null;
+    if (patch.regime !== undefined) upd.regime = patch.regime;
+    if (patch.porte !== undefined) upd.porte = patch.porte ?? null;
+    if (patch.observacao !== undefined) upd.observacao = patch.observacao ?? null;
+    if (patch.inativo !== undefined) upd.inativo = patch.inativo;
+    const { data, error } = await this.db.from("empresas_cliente").update(upd).eq("id", id).select().single();
     if (error) throw new Error(error.message);
     return mapEmpresa(data as Record<string, unknown>);
   }
@@ -138,6 +175,10 @@ export class CompetenciasSupabase implements CompetenciasRepo {
     if (error) throw new Error(error.message);
     return mapCompetencia(data as Record<string, unknown>);
   }
+  async atualizarStatus(id: string, status: "aberta" | "fechada"): Promise<void> {
+    const { error } = await this.db.from("competencias").update({ status }).eq("id", id);
+    if (error) throw new Error(error.message);
+  }
 }
 
 function mapEmpresa(d: Record<string, unknown>): EmpresaRow {
@@ -147,6 +188,8 @@ function mapEmpresa(d: Record<string, unknown>): EmpresaRow {
     cnpj: (d.cnpj as string) ?? undefined,
     regime: d.regime as EmpresaInput["regime"],
     porte: (d.porte as string) ?? undefined,
+    observacao: (d.observacao as string) ?? undefined,
+    inativo: Boolean(d.inativo),
     criadoEm: String(d.criado_em),
   };
 }
