@@ -2,5 +2,7 @@ name = "contabilidade-zx-control"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 
-[triggers]
-crons = ["0 * * * *"]
+# v1 NÃO dispara mensagem (spec §7): SEM cron nesta versão. A notificação de prazo
+# fiscal (PUSH por cron / PULL por poller) é v1.1 — quando vier, reativa o trigger:
+#   [triggers]
+#   crons = ["0 * * * *"]

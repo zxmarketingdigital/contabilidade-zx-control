@@ -1,8 +1,11 @@
 # 🏠 Comece aqui — Colaborador (Contabilidade ZX Control)
 
-Você vai ajudar a construir um produto: um sistema de atendimento por WhatsApp pra contabilidadees de
-imóveis. **Não precisa saber programar** — quem escreve o código é a IA (o Claude). Seu papel é
-**conduzir, testar e enviar o trabalho pro Rafael aprovar**. É mais simples do que parece.
+Você vai ajudar a construir um produto: um mini sistema **com login** de **5 agentes de IA** pro
+**contador** (calendário de obrigações fiscais, enquadramento de empresa, comunicado ao cliente,
+consultor tributário e resposta ao Fisco) — tudo **texto→texto** (o contador digita/cola, a IA gera;
+sem upload e sem WhatsApp na v1). **Não precisa saber programar** — quem escreve o código é a IA (o
+Claude). Seu papel é **conduzir, testar e enviar o trabalho pro Rafael aprovar**. É mais simples do
+que parece.
 
 ## Parte 1 — Preparação (só uma vez)
 

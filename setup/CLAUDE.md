@@ -32,11 +32,15 @@ aluno tem todas em mãos antes de prosseguir):
 3. **Supabase.** Peça, **uma de cada vez**: `SUPABASE_URL` (Project Settings ▸ API ▸ Project URL),
    `SUPABASE_SERVICE_KEY` (mesma tela ▸ service_role — secreta) e a `anon` key (pro painel).
 4. **Gemini.** Peça `GEMINI_API_KEY` e explique onde gerar.
-5. **Escreva os configs.** Crie o `.env` (a partir de `.env.example`) e preencha `painel/config.js`
-   com `supabaseUrl` + `supabaseAnonKey`. **Esses arquivos não vão pro git** (já estão no `.gitignore`).
-   Nunca commite credencial.
+5. **Escreva os configs.** Crie o `.env` (a partir de `.env.example`). Para o painel, **copie o
+   template** `cp painel/config.example.js painel/config.js` e preencha os 5 campos de `window.ZX`:
+   `mode: "prod"`, `apiBase` (URL do Worker + `/api`), `supabaseUrl`, `supabaseAnonKey` (a `anon` key —
+   pública por design) e `prazoAlertaDias`. **`.env` e `painel/config.js` não vão pro git** (já no
+   `.gitignore`); o `config.example.js` SIM é versionado. Nunca commite credencial.
 6. **Aplique o banco.** Rode as migrations de `supabase/migrations/` no Supabase do escritório
-   (RLS já vem habilitado em toda tabela). Confirme que as 4 tabelas existem.
+   (RLS já vem habilitado em toda tabela). Confirme que as **8 tabelas** existem: `empresas_cliente`,
+   `competencias`, `prazos`, `saidas_geradas` (núcleo) + `leads`, `receitas`, `custos` (CRM/Financeiro)
+   + `disparos` (reservado v1.1, fica vazio na v1).
 7. **Deploy.** `wrangler deploy` (Worker) e `wrangler pages deploy painel/` (painel). Configure os
    secrets do Worker (`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `GEMINI_API_KEY`) com `wrangler secret put`.
 8. **Primeiro usuário.** Crie o primeiro login do escritório no Supabase Auth (email/senha) e mostre

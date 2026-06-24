@@ -2,8 +2,11 @@
 // Entrypoint do Worker (Cloudflare). Liga as deps REAIS (Supabase + Gemini) e
 // delega o roteamento para src/app.ts (testável). Auth fail-closed vive lá.
 //
-// v1 NÃO dispara mensagem (spec §7): o handler `scheduled` existe só porque há
-// cron em wrangler.toml, mas é no-op reservado para a notificação de prazo (v1.1).
+// v1 NÃO dispara mensagem (spec §7): a notificação de prazo fiscal (PUSH por cron
+// + rotas PULL /notificacao/*) é v1.1. Os módulos vivem em src/notificacao/* e a
+// engine anti-ban em src/scheduler + src/adapters/whatsapp — CONGELADOS e testados,
+// mas NÃO wired neste entrypoint na v1. O `scheduled` é um no-op (sem cron também).
+// Para ativar v1.1: religar os imports/rotas abaixo + o cron em wrangler.toml.
 // ════════════════════════════════════════════════════════════════════════
 
 import { handleRequest, type AppDeps } from "./app";
@@ -13,10 +16,6 @@ import { CompetenciasSupabase, EmpresasSupabase } from "./entidades";
 import { LeadsSupabase } from "./crm";
 import { ReceitasSupabase, CustosSupabase } from "./financeiro";
 import { geminiFlash } from "./gemini/client";
-import { createAdapter } from "./adapters/whatsapp";
-import { DisparosSupabase } from "./notificacao/disparos-db";
-import { enviarResumoDiario } from "./notificacao/run";
-import { handleNotificacaoPull } from "./notificacao/pull";
 
 export interface Env {
   SUPABASE_URL: string;
@@ -47,11 +46,9 @@ function withCors(res: Response): Response {
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
-    // Rotas /notificacao/* (poller local) — auth própria por token, ANTES do
-    // roteador /api para não passar pelo (nem afetar o) gate JWT do Supabase.
-    // Sem CORS de propósito: é consumo server-to-server (Node), não navegador.
-    const pull = await handleNotificacaoPull(req, env);
-    if (pull) return pull;
+    // v1.1: aqui entram as rotas PULL /notificacao/* (handleNotificacaoPull de
+    // ./notificacao/pull), com auth própria por token, ANTES do roteador /api.
+    // Na v1 NÃO são wired — o produto não notifica (spec §7).
     const deps: AppDeps = {
       agenda: new AgendaSupabase(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY),
       saidas: new SaidasSupabase(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY),
@@ -65,26 +62,11 @@ export default {
     return withCors(await handleRequest(req, env, deps));
   },
 
-  // Notificação de prazo fiscal (v1.1). Cron de hora em hora (wrangler.toml); o
-  // resumo sai 1x/dia quando a janela BRT abre (dedup por dia na engine anti-ban).
-  // FAIL-SAFE: sem credenciais Evolution + número do contador, é no-op silencioso.
-  async scheduled(_event: ScheduledController, env: Env): Promise<void> {
-    if (!env.EVOLUTION_URL || !env.EVOLUTION_INSTANCE || !env.EVOLUTION_API_KEY || !env.CONTADOR_WHATSAPP) {
-      return; // notificação não configurada → não dispara nada
-    }
-    const adapter = createAdapter({
-      WHATSAPP_PROVIDER: env.WHATSAPP_PROVIDER ?? "evolution",
-      EVOLUTION_URL: env.EVOLUTION_URL,
-      EVOLUTION_INSTANCE: env.EVOLUTION_INSTANCE,
-      EVOLUTION_API_KEY: env.EVOLUTION_API_KEY,
-    });
-    await enviarResumoDiario({
-      agenda: new AgendaSupabase(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY),
-      empresas: new EmpresasSupabase(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY),
-      db: new DisparosSupabase(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY),
-      adapter,
-      numero: env.CONTADOR_WHATSAPP,
-      delayMs: 1500, // jitter anti-ban entre envios (1 só por dia, mas mantém o contrato)
-    });
+  // v1 NÃO dispara mensagem (spec §7): no-op. Sem cron em wrangler.toml, este
+  // handler nem é invocado — fica como stub explícito. A notificação de prazo
+  // fiscal (resumo diário via engine anti-ban) é v1.1: religar o corpo a partir
+  // de ./notificacao/run (enviarResumoDiario) + createAdapter + o cron.
+  async scheduled(_event: ScheduledController, _env: Env): Promise<void> {
+    return; // reservado v1.1 — a v1 não notifica
   },
 };
