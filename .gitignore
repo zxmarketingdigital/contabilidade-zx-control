@@ -5,3 +5,4 @@ dist/
 .dev.vars
 *.local
 painel/config.js
+PROJETO.md
