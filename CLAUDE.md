@@ -1,5 +1,7 @@
 # Contabilidade ZX Control — guia do desenvolvedor (Claude Code)
 
+> **STATUS (24/Jun/2026): Setup 13 CONCLUÍDO E PUBLICADO.** Worker live em contabilidade-zx-control.workers.dev. Demo: demo-contabilidade.zxlab.com.br. Áreas de membros v3.0 e v4.0 atualizadas. Vídeo Bunny GUID `aa7c4296-2e8b-4262-a6a1-1d552dd4bad3`. Divulgação feita. PRÓXIMO: v1.1 → reativar engine notificações em `src/notificacao/` (cron no wrangler.toml + import em src/index.ts).
+
 > Você (Claude Code) está no repositório de um **produto em construção**: o **Contabilidade ZX
 > Control**, 4º pacote da linha de produtos de nicho do ZX Control v3 (irmãos: Clínica Cheia, Corretor
 > ZX Control e Jurídico ZX Control). É um mini sistema **com autenticação** de **5 agentes de IA** para
