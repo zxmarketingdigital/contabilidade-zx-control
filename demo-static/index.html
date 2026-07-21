@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<!-- v2 -->
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contabilidade — Demonstração</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="tour.css" />
+  <script src="config.js"></script>
+</head>
+<body>
+  <!-- ── Login ── -->
+  <section id="login">
+    <form class="login-card" id="login-form" autocomplete="off">
+      <div class="eyebrow">CD Tech · Contabilidade</div>
+      <h1>Acesso ao escritório</h1>
+      <div class="sub" id="login-sub">Entre com seu e-mail e senha.</div>
+      <label class="field"><span>E-mail</span><input type="email" id="login-email" required autocomplete="off" /></label>
+      <label class="field"><span>Senha</span><input type="password" id="login-pass" required autocomplete="new-password" /></label>
+      <button class="btn btn-primary" type="submit" style="width: 100%">Entrar</button>
+      <div class="sub" id="login-err" style="color: var(--red); margin-top: 12px"></div>
+    </form>
+  </section>
+
+  <!-- ── App ── -->
+  <div id="app" class="hidden">
+    <header class="top">
+      <span class="dot"></span>
+      <h1>Contabilidade</h1>
+      <span class="spacer"></span>
+      <span class="userbox" id="userbox"></span>
+      <button class="btn btn-sm" id="logout">Sair</button>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button data-tab="inicio" class="active">Início</button>
+      <button data-tab="agentes">Assistentes</button>
+      <button data-tab="empresas">Clientes</button>
+      <button data-tab="crm">CRM</button>
+      <button data-tab="competencias">Meses de trabalho</button>
+      <button data-tab="agenda">Agenda de prazos</button>
+      <button data-tab="relatorio">Relatório</button>
+      <button data-tab="saidas">O que já gerei</button>
+    </nav>
+
+    <main>
+      <!-- Início (dashboard) -->
+      <section data-view="inicio">
+        <div class="section-title">Olá! Veja o que precisa de atenção hoje</div>
+        <div class="dash-grid" id="dash-cards"></div>
+        <div class="section-title" style="margin-top: 28px; font-size: 0.95rem">Próximos vencimentos</div>
+        <div id="dash-prox"></div>
+      </section>
+
+      <!-- Assistentes -->
+      <section data-view="agentes" hidden>
+        <div class="section-title">Assistentes de IA</div>
+        <div class="grid-cards" id="cards-agentes"></div>
+      </section>
+
+      <!-- Clientes (CRUD) -->
+      <section data-view="empresas" hidden>
+        <div class="toolbar">
+          <div class="section-title" style="margin: 0">Seus clientes</div>
+          <span class="spacer"></span>
+          <label style="width: 190px; margin: 0"><select id="emp-filtro">
+            <option value="">Todos os regimes</option>
+          </select></label>
+          <label class="inline-check"><input type="checkbox" id="emp-inativos" /> <span>Mostrar inativos</span></label>
+          <button class="btn btn-primary btn-sm" id="novo-empresa">+ Novo cliente</button>
+        </div>
+        <div id="emp-tbl"></div>
+      </section>
+
+      <!-- CRM (leads) -->
+      <section data-view="crm" hidden>
+        <div class="toolbar">
+          <div class="section-title" style="margin: 0">CRM — Leads</div>
+          <span class="spacer"></span>
+          <label style="width: 190px; margin: 0"><select id="crm-filtro"></select></label>
+          <button class="btn btn-primary btn-sm" id="novo-lead">+ Novo lead</button>
+        </div>
+        <div class="dash-grid" id="crm-funil" style="margin-bottom: 18px"></div>
+        <div id="crm-tbl"></div>
+      </section>
+
+      <!-- Meses de trabalho (CRUD) -->
+      <section data-view="competencias" hidden>
+        <div class="toolbar">
+          <div class="section-title" style="margin: 0">Meses de trabalho</div>
+          <span class="spacer"></span>
+          <button class="btn btn-primary btn-sm" id="novo-competencia">+ Novo período</button>
+        </div>
+        <div id="comp-tbl"></div>
+      </section>
+
+      <!-- Agenda de prazos -->
+      <section data-view="agenda" hidden>
+        <div class="toolbar">
+          <div class="section-title" style="margin: 0">Agenda de prazos</div>
+          <span class="spacer"></span>
+          <label style="width: 260px; margin: 0"><select id="ag-emp"></select></label>
+          <button class="btn btn-sm" id="export-ics">Exportar .ics</button>
+          <button class="btn btn-primary btn-sm" id="novo-prazo">+ Novo prazo</button>
+        </div>
+        <div id="ag-tbl"></div>
+      </section>
+
+      <!-- Relatório do escritório -->
+      <section data-view="relatorio" hidden>
+        <div class="section-title">Relatório do escritório</div>
+        <div class="dash-grid" id="rel-cards"></div>
+        <div class="section-title" style="margin-top: 28px; font-size: 0.95rem">Clientes com mais atrasos</div>
+        <div id="rel-rank"></div>
+
+        <!-- Relatórios Financeiros -->
+        <div class="section-title" style="margin-top: 34px">Relatórios Financeiros</div>
+        <div class="dash-grid" id="fin-cards"></div>
+
+        <div class="toolbar" style="margin-top: 24px">
+          <div class="section-title" style="margin: 0; font-size: 0.95rem">Receitas</div>
+          <span class="spacer"></span>
+          <button class="btn btn-primary btn-sm" id="nova-receita">+ Nova receita</button>
+        </div>
+        <div id="rec-tbl"></div>
+
+        <div class="toolbar" style="margin-top: 22px">
+          <div class="section-title" style="margin: 0; font-size: 0.95rem">Custos</div>
+          <span class="spacer"></span>
+          <button class="btn btn-primary btn-sm" id="novo-custo">+ Novo custo</button>
+        </div>
+        <div id="cus-tbl"></div>
+      </section>
+
+      <!-- Histórico -->
+      <section data-view="saidas" hidden>
+        <div class="section-title">O que já gerei pra você</div>
+        <div id="sa-tbl"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast"></div>
+  <footer class="demo-footer">Ambiente de demonstração — dados fictícios</footer>
+  <script src="data.js"></script>
+  <script src="mock-api.js"></script>
+  <script src="app.js"></script>
+  <script src="tour.js"></script>
+  <script>
+    if (window.ZX && window.ZX.mode === "demo") {
+      document.getElementById('login-email').value = 'demo@cd-tech.com.br';
+      document.getElementById('login-pass').value = 'demo1234';
+      document.getElementById('login-form').dispatchEvent(new Event('submit'));
+    }
+  </script>
+
+  <div id="mobile-overlay" style="
+    display:none;position:fixed;inset:0;z-index:9999;
+    background:#0a0a0f;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:32px;font-family:Inter,sans-serif;color:#f4f4f5;">
+    <div style="font-size:56px;margin-bottom:24px;animation:rotate-hint 1.8s ease-in-out infinite;">📱</div>
+    <h2 style="font-size:1.2rem;font-weight:700;margin:0 0 12px;">Gire o celular</h2>
+    <p style="font-size:.9rem;color:#a1a1aa;margin:0 0 32px;max-width:260px;line-height:1.5;">
+      Este painel foi desenvolvido para estações de trabalho.<br>
+      Vire o celular na <strong style="color:#f4f4f5;">posição horizontal</strong> para navegar melhor.
+    </p>
+    <button onclick="document.getElementById('mobile-overlay').style.display='none'" style="
+      background:transparent;border:1px solid #3f3f46;color:#a1a1aa;
+      padding:10px 24px;border-radius:8px;font-size:.85rem;cursor:pointer;">Ver mesmo assim</button>
+  </div>
+  <div id="inapp-banner" style="
+    display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;
+    background:#18181b;border:1px solid #3f3f46;border-radius:12px;padding:14px 16px;
+    font-family:Inter,sans-serif;color:#f4f4f5;box-shadow:0 8px 24px rgba(0,0,0,.4);
+    align-items:center;gap:12px;">
+    <span style="font-size:1.3rem;">💡</span>
+    <span style="font-size:.82rem;color:#d4d4d8;line-height:1.4;flex:1;">
+      Pra melhor experiência (tela cheia e paisagem), toque em <strong style="color:#f4f4f5;">⋯</strong> e escolha <strong style="color:#f4f4f5;">"Abrir no navegador"</strong>.
+    </span>
+    <button onclick="document.getElementById('inapp-banner').style.display='none'" style="
+      background:transparent;border:none;color:#a1a1aa;font-size:1rem;cursor:pointer;padding:4px;">✕</button>
+  </div>
+  <style>@keyframes rotate-hint{0%,100%{transform:rotate(0deg)}40%,60%{transform:rotate(90deg)}}</style>
+  <script>
+    (function(){
+      var o=document.getElementById('mobile-overlay');
+      var b=document.getElementById('inapp-banner');
+      var inApp=/Instagram|FBAN|FBAV|FB_IAB|Line\/|TikTok|MicroMessenger/i.test(navigator.userAgent);
+      function c(){if(inApp){o.style.display='none';b.style.display='flex';return;}var m=window.innerWidth<900||('ontouchstart' in window&&screen.width<900);o.style.display=(m&&window.innerHeight>window.innerWidth)?'flex':'none';}
+      c();window.addEventListener('resize',c);window.addEventListener('orientationchange',function(){setTimeout(c,300);});
+    })();
+  </script>
+</body>
+</html>
