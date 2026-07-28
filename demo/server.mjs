@@ -137,8 +137,11 @@ const server = createServer(async (req, res) => {
   // ── Prazos / agenda ──
   if (path === "/prazos" && m === "GET") {
     const eid = url.searchParams.get("empresaId");
-    if (!eid) return json(res, { error: "empresaId obrigatório" }, 400);
-    return json(res, state.prazos.filter((p) => p.empresaId === eid).sort((a, b) => a.dataFatal.localeCompare(b.dataFatal)));
+    // Sem empresaId → agenda completa do escritório (painel-início / aviso de login).
+    // Espelha src/app.ts (rota real do Worker). O 400 que existia aqui era uma
+    // divergência do mock: travava o dashboard "Início" num spinner eterno.
+    const lista = eid ? state.prazos.filter((p) => p.empresaId === eid) : state.prazos.slice();
+    return json(res, lista.sort((a, b) => a.dataFatal.localeCompare(b.dataFatal)));
   }
   if (path === "/prazos" && m === "POST") {
     const b = await readBody(req);

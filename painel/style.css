@@ -39,6 +39,16 @@ a { color: var(--primary-light); }
 .hidden { display: none !important; }
 .mono { font-family: var(--mono); }
 
+/* ── Demo pública (html.zx-demo) ──────────────────────────────────────────
+   Só existe quando config.js traz mode:"demo" (demo hospedada). Em produção a
+   classe nunca é aplicada e nada abaixo tem efeito.
+   Abre já no painel, sem flash do login, e some com o "Sair" (não faz sentido
+   numa demonstração). O <form> de login continua no DOM: se o auto-login do
+   app.js falhar, logout() tira .zx-demo do <html> e a tela de acesso reaparece. */
+html.zx-demo #login { display: none !important; }
+html.zx-demo #app.hidden { display: block !important; }
+html.zx-demo #logout { display: none !important; }
+
 /* ── Eyebrow / kicker ── */
 .eyebrow {
   font-family: var(--mono);

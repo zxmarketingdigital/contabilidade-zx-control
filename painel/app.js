@@ -82,6 +82,12 @@
     return { email };
   }
   function logout() {
+    // Demo pública: sair do modo demo ANTES de esconder o app. Sem isto as regras
+    // de html.zx-demo (style.css) mantêm o #login em display:none e o visitante
+    // ficaria preso num shell logado, sem tela de acesso e sem botão "Sair".
+    // Acontece de verdade quando um 401 do mock chega DEPOIS do boot.
+    // Em produção a classe nunca é aplicada — logout normal, fail-closed como sempre.
+    if (ZX.mode === "demo") document.documentElement.classList.remove("zx-demo");
     token = null;
     sessionStorage.removeItem("zx_tok");
     $("app").classList.add("hidden");
@@ -100,7 +106,23 @@
     }
   });
   $("logout").addEventListener("click", logout);
-  if (ZX.mode === "demo") $("login-sub").textContent = "Demo: qualquer e-mail e senha entram.";
+
+  // ── Demo pública: entra direto, sem login ─────────────────────────────────
+  // Guardado por ZX.mode === "demo" — só o config.js da demo hospedada define
+  // isso; em produção o modo é "prod" e este bloco inteiro é pulado, de forma que
+  // a auth do produto que o aluno instala continua idêntica (login + JWT + 401).
+  // O <form> continua no DOM de propósito: se o auto-login falhar, logout() tira
+  // .zx-demo do <html> e a tela de acesso reaparece como fallback silencioso.
+  if (ZX.mode === "demo") {
+    $("login-sub").textContent = "Demo: qualquer e-mail e senha entram.";
+    Promise.resolve()
+      .then(() => login("demo@escritorio.local", "demo"))
+      .then(() => {
+        sessionStorage.setItem("zx_tok", token);
+        startApp("Demonstração");
+      })
+      .catch(() => logout());
+  }
 
   // ── Shell ──
   function startApp(email) {

@@ -11,6 +11,11 @@
   />
   <link rel="stylesheet" href="style.css" />
   <script src="config.js"></script>
+  <!-- Demo pública: marca o <html> ANTES do 1º paint pra o painel já abrir aberto,
+       sem flash da tela de login (regras em style.css, bloco "Demo pública").
+       Em produção config.js traz mode:"prod" → nada aqui roda e o estado inicial
+       do documento continua sendo o de login. -->
+  <script>if (window.ZX && window.ZX.mode === "demo") document.documentElement.classList.add("zx-demo");</script>
 </head>
 <body>
   <!-- ── Login ── -->
