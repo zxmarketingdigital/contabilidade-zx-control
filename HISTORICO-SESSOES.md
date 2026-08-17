@@ -5,6 +5,14 @@
 
 ---
 
+## 2026-08-13 — Fix Gemini aposentado (404)
+
+**Feito:** Mesmo defeito do gemini-2.5-flash/2.0-flash aposentado encontrado e corrigido nos 4 repos irmaos da linha de nicho + no setup Semana 1, apos achar na Clinica Cheia (aluno Diogo reportou).
+**Fix:** modelo default trocado p/ alias gemini-flash-lite-latest, GEMINI_MODEL opcional com trim+fallback, parser resiliente a part sem text e a thought:true (raciocinio interno).
+**Arquivos:** src/gemini/client.ts (contabilidade, corretor) · src/config.ts+src/ia.ts (juridico) · scripts/agent_bant.py+setup/setup_agent.py (semana1) · setup/configure.mjs+setup/smoke.mjs (corretor).
+**Deploy:** push origin/main nos 4 (CI verde: 101/164/84 testes). Cascas geradoras (~/.claude/skills/criar-repo-setup-colaborador/templates/) corrigidas junto p/ setup novo nao nascer quebrado; regra registrada na SKILL.md.
+**Pendencias:** nenhuma. Aviso enviado no grupo ZX Control 5 com instrucao de git pull + wrangler deploy.
+
 ## 2026-07-28 — Demo pública entra direto (sem login) + fonte versionada
 
 **Feito:** a demo publica (demo-contabilidade.zxlab.com.br) passou a abrir direto no painel, sem tela de login — é material de venda que o aluno manda pro cliente. Bypass guardado por `ZX.mode === 'demo'`: script inline pre-paint no <head> marca `html.zx-demo`, CSS esconde #login/#logout e revela #app. Form de login continua no DOM como fallback; logout() remove a classe antes de deslogar.
