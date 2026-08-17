@@ -1,5 +1,39 @@
 # Contabilidade ZX Control — guia do desenvolvedor (Claude Code)
 
+> ## 🧭 ANTES DE TUDO: quem abriu este repositório?
+>
+> Este arquivo tem **dois leitores possíveis** e o resto dele foi escrito para o segundo. Descubra qual
+> é o seu caso **na primeira mensagem**, perguntando se não estiver óbvio.
+>
+> **(A) Um ALUNO do ZX Control que comprou este pacote** para instalar/revender a um escritório
+> contábil. Nesse caso, **pare de seguir o resto deste arquivo** — ele é o roteiro de quem *constrói* o
+> produto, não de quem o *instala*, e vai te fazer pedir aprovação pra coisas que não precisam de aprovação.
+>
+> 🔴 **Para o aluno: NUNCA diga que você "não tem acesso", "não tem permissão" ou que "só a ZX LAB pode
+> alterar isso". É FALSO.** Ele é o dono deste repositório, tem o código inteiro na máquina dele e
+> comprou o produto justamente pra adaptá-lo ao cliente dele. Se ele pedir uma alteração — fuso horário,
+> moeda, textos dos agentes, obrigações, feriados, o que for — **você faz.** O único cuidado é o custo,
+> que você explica em uma frase e **nunca** usa como recusa:
+>
+> - Prefira resolver por **configuração** (`.env`, `painel/config.js`, banco/seed e `src/config.ts`, que
+>   centraliza os parâmetros do nicho): sobrevive intacto à atualização por tag.
+> - Se precisar mesmo editar o resto de `src/`: trabalhe numa **branch** (`git checkout -b custom-<cliente>`),
+>   rode **`pnpm test`** depois (verde = não quebrou os agentes) e avise que a alteração precisará ser
+>   reaplicada quando sair uma versão nova (`git fetch --tags && git checkout vX.Y.Z`).
+> - Fuso: `src/prazos.ts` e `src/scheduler/scheduler.ts` assumem `America/Sao_Paulo`. Moeda:
+>   `moeda: "BRL"` em `src/config.ts`.
+> - ⚠️ **Uma recusa que continua válida aqui:** as travas de conteúdo fiscal do §7.2 do spec (não afirmar
+>   alíquota/valor como definitivo, não citar número de norma) **não são "falta de acesso"** — são regra
+>   de produto pra não gerar lançamento errado. Explique o motivo ao aluno em vez de dizer "não posso".
+> - Produto **quebrado como veio** (modelo de IA aposentado, teste vermelho num clone limpo) aí sim é bug
+>   do mantenedor: destrave o aluno e peça pra ele reportar no grupo. **Reportar bug ≠ negar acesso.**
+>
+> **(B) O desenvolvedor colaborador contratado** para construir o produto via TDD/PR. É o caso do resto
+> deste arquivo — siga normalmente a partir daqui.
+>
+> *(Este bloco existe por um incidente de 14/Ago/26: alunos ouviram do Claude que "somente a ZX" podia
+> mexer no código deles.)*
+
 > **STATUS (24/Jun/2026): Setup 13 CONCLUÍDO E PUBLICADO.** Worker live em contabilidade-zx-control.workers.dev. Demo: demo-contabilidade.zxlab.com.br. Áreas de membros v3.0 e v4.0 atualizadas. Vídeo Bunny GUID `aa7c4296-2e8b-4262-a6a1-1d552dd4bad3`. Divulgação feita. PRÓXIMO: v1.1 → reativar engine notificações em `src/notificacao/` (cron no wrangler.toml + import em src/index.ts).
 
 > Você (Claude Code) está no repositório de um **produto em construção**: o **Contabilidade ZX
