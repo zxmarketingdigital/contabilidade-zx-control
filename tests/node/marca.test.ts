@@ -1,7 +1,7 @@
 // Marca do aluno: validação de cor/logo, paleta em runtime (painel/marca.js) e gravação (setup/marca.mjs).
 // Roda em Node puro (projeto "node" do vitest.config.ts): precisa de disco real, que o workerd não tem.
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { copyFileSync, existsSync, symlinkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, copyFileSync, existsSync, symlinkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runInNewContext } from "node:vm";
@@ -273,6 +273,27 @@ describe("contraste em cinza médio e superfícies", () => {
   it("logoValido só aceita o nome que o setup grava", () => {
     expect(Z.logoValido("marca/outro.png")).toBeNull();
     expect(Z.logoValido("marca/logo.png")).toBe("marca/logo.png");
+  });
+});
+
+describe("troca transacional", () => {
+  it("falha ao gravar docs restaura painel e logo anteriores (sem marcas divergentes)", () => {
+    const raiz = mkdtempSync(join(tmpdir(), "marca-test-"));
+    try {
+      mkdirSync(join(raiz, "painel"), { recursive: true });
+      mkdirSync(join(raiz, "docs"), { recursive: true });
+      for (const f of ["config.example.js", "marca.js"]) copyFileSync(join(REPO, "painel", f), join(raiz, "painel", f));
+      writeFileSync(join(raiz, "l.png"), PNG("A"));
+      aplicarMarca({ raiz, nome: "Antiga", cor: "#111111", logo: join(raiz, "l.png") });
+      const antes = readFileSync(join(raiz, "painel", "config.js"), "utf8");
+      // docs somente-leitura: a gravação do docs falha DEPOIS de o painel/config.js já ter sido trocado
+      chmodSync(join(raiz, "docs"), 0o555);
+      try { expect(() => aplicarMarca({ raiz, nome: "Nova", cor: "#222222" })).toThrow(/restaurado/); }
+      finally { chmodSync(join(raiz, "docs"), 0o755); }
+      expect(readFileSync(join(raiz, "painel", "config.js"), "utf8")).toBe(antes);
+      expect(existsSync(join(raiz, "painel", "marca", "logo.png"))).toBe(true);
+      expect(existsSync(join(raiz, "docs", "marca", "logo.png"))).toBe(true);
+    } finally { rmSync(raiz, { recursive: true, force: true }); }
   });
 });
 

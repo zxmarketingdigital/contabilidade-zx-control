@@ -154,15 +154,28 @@ export function aplicarMarca({ raiz = RAIZ_PADRAO, nome, cor, cor2, logo } = {})
     for (const [t] of tmps) rmSync(t, { force: true });
     throw new MarcaErro(`Não consegui copiar o logo (${e.message}). Nada foi trocado.`);
   }
-  for (const [t, final] of tmps) renameSync(t, final); // substitui o logo de mesma extensão de uma vez
-
-  // 4) Config e docs, também com tmp + rename.
-  const gravar = (caminho, texto) => { const t = `${caminho}.${process.pid}.tmp`; writeFileSync(t, texto); renameSync(t, caminho); };
-  gravar(configPath, config);
-  gravar(join(docsDir, "marca.config.js"), `window.ZX = window.ZX || {};\n${bloco}`);
-  copyFileSync(join(painelDir, "marca.js"), join(docsDir, "marca.js"));
-  // 5) Só agora, com tudo gravado e apontando para o logo novo, some o logo antigo (outra extensão).
-  for (const base of [painelDir, docsDir]) limparLogos(join(base, "marca"), logoOrigem ? basename(logoConfig) : null);
+  // 4) Troca transacional: guarda o estado anterior de TUDO que vai ser tocado; se qualquer gravação falhar,
+  //    restaura (painel e docs nunca ficam com marcas diferentes).
+  const gravar = (caminho, conteudo) => { const t = `${caminho}.${process.pid}.tmp`; writeFileSync(t, conteudo); renameSync(t, caminho); };
+  const alvos = [configPath, join(docsDir, "marca.config.js"), join(docsDir, "marca.js")];
+  for (const base of [painelDir, docsDir]) {
+    const d = join(base, "marca");
+    if (existsSync(d)) for (const f of readdirSync(d)) if (/^logo\.[a-z0-9]+$/i.test(f)) alvos.push(join(d, f));
+  }
+  for (const [, final] of tmps) if (!alvos.includes(final)) alvos.push(final);
+  const antes = new Map(alvos.map((c) => [c, existsSync(c) ? readFileSync(c) : null]));
+  try {
+    for (const [t, final] of tmps) renameSync(t, final); // substitui o logo de mesma extensão de uma vez
+    gravar(configPath, config);
+    gravar(join(docsDir, "marca.config.js"), `window.ZX = window.ZX || {};\n${bloco}`);
+    gravar(join(docsDir, "marca.js"), readFileSync(join(painelDir, "marca.js")));
+    // Com tudo gravado e apontando para o logo novo, some o logo antigo (outra extensão).
+    for (const base of [painelDir, docsDir]) limparLogos(join(base, "marca"), logoOrigem ? basename(logoConfig) : null);
+  } catch (e) {
+    for (const [t] of tmps) rmSync(t, { force: true });
+    for (const [c, conteudo] of antes) { try { if (conteudo === null) rmSync(c, { force: true }); else writeFileSync(c, conteudo); } catch { /* melhor esforço */ } }
+    throw new MarcaErro(`Falha ao gravar a marca (${e.message}). Estado anterior restaurado; nada mudou.`);
+  }
 
   return { marca, avisos };
 }
