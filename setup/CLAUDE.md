@@ -81,4 +81,4 @@ aluno tem todas em mãos antes de prosseguir):
 - **Disclaimer e "não afirma valor/lei"** já estão embutidos no produto — não remova.
 
 Ao terminar, mostre ao aluno o painel no ar e a `docs/proposta.html` (já com a marca dele) para ele revender;
-a `docs/apresentacao.html` é o material de instalação e aplica só as cores.
+a `docs/apresentacao.html` é o material de instalação e aplica cores, nome e logo do escritório (os créditos ZX ficam). Confirme com o aluno que as três páginas saíram com a marca dele.
