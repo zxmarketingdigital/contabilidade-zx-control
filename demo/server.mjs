@@ -11,7 +11,7 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
-import { join, extname, dirname } from "node:path";
+import { join, extname, dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as DB from "./data.mjs";
 
@@ -70,14 +70,18 @@ function marcaDoAluno() {
 const configJs = () => `window.ZX = ${JSON.stringify({ mode: "demo", apiBase: "/api", token: TOKEN, prazoAlertaDias: 5, marca: marcaDoAluno() })};`;
 
 async function serveStatic(req, res) {
-  if (req.url === "/config.js") {
+  let p;
+  try { p = decodeURIComponent((req.url || "/").split("?")[0]); } catch { res.writeHead(400); return res.end("Bad request"); }
+  if (p === "/config.js") { // também com ?query: nunca serve o painel/config.js real (tem chaves do Supabase)
     res.writeHead(200, { "Content-Type": MIME[".js"] });
     return res.end(configJs());
   }
-  const p = req.url === "/" ? "/index.html" : req.url.split("?")[0];
+  if (p === "/") p = "/index.html";
+  const alvo = resolve(PAINEL, "." + p);
+  if (alvo !== PAINEL && !alvo.startsWith(PAINEL + sep)) { res.writeHead(403); return res.end("Forbidden"); }
   try {
-    const buf = await readFile(join(PAINEL, p));
-    res.writeHead(200, { "Content-Type": MIME[extname(p)] ?? "application/octet-stream" });
+    const buf = await readFile(alvo);
+    res.writeHead(200, { "Content-Type": MIME[extname(alvo)] ?? "application/octet-stream" });
     res.end(buf);
   } catch {
     res.writeHead(404);
@@ -262,7 +266,7 @@ const server = createServer(async (req, res) => {
   return json(res, { error: "Not Found" }, 404);
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, "127.0.0.1", () => {
   console.log(`\n  📊 DEMO local — Contabilidade ZX Control (painel populado, zero credencial)`);
   console.log(`  Painel:  http://localhost:${PORT}/`);
   console.log(`  Login:   qualquer e-mail/senha entram (modo demo)`);

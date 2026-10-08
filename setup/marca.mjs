@@ -45,6 +45,17 @@ function limparLogos(dir, manter = null) {
   for (const f of readdirSync(dir)) if (f !== manter && /^logo\.[a-z0-9]+$/i.test(f)) rmSync(join(dir, f));
 }
 
+/** Confere os primeiros bytes: a extensão sozinha não prova que o arquivo é uma imagem (não copiar .env renomeado). */
+function pareceImagem(caminho, ext) {
+  const buf = readFileSync(caminho);
+  const ini = buf.subarray(0, 16);
+  if (ext === ".png") return ini.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  if (ext === ".jpg" || ext === ".jpeg") return ini[0] === 0xff && ini[1] === 0xd8 && ini[2] === 0xff;
+  if (ext === ".webp") return ini.subarray(0, 4).toString("latin1") === "RIFF" && ini.subarray(8, 12).toString("latin1") === "WEBP";
+  if (ext === ".svg") { const t = buf.toString("utf8", 0, 4096); return /<svg[\s>]/i.test(t) && buf.length < 2_000_000; }
+  return false;
+}
+
 /** Valida os campos e grava tudo. Lança MarcaErro com mensagem pronta para o Claude repetir ao aluno. */
 export function aplicarMarca({ raiz = RAIZ_PADRAO, nome, cor, cor2, logo } = {}) {
   const avisos = [];
@@ -79,9 +90,13 @@ export function aplicarMarca({ raiz = RAIZ_PADRAO, nome, cor, cor2, logo } = {})
       throw new MarcaErro("Logo por URL precisa ser https://. Para arquivo, passe o caminho no computador. Pergunte de novo.");
     } else {
       logoOrigem = caminhoLocal(l);
-      if (!existsSync(logoOrigem) || !statSync(logoOrigem).isFile()) throw new MarcaErro(`Arquivo de logo não encontrado: ${logoOrigem}. Pergunte o caminho de novo.`);
+      let lst = null;
+      try { lst = lstatSync(logoOrigem); } catch { /* não existe */ }
+      if (lst && lst.isSymbolicLink()) throw new MarcaErro(`Logo "${logoOrigem}" é um link simbólico; recuso copiar (poderia apontar para um arquivo sensível). Passe o arquivo de imagem real.`);
+      if (!lst || !lst.isFile()) throw new MarcaErro(`Arquivo de logo não encontrado: ${logoOrigem}. Pergunte o caminho de novo.`);
       const ext = extname(logoOrigem).toLowerCase();
       if (!EXT_LOGO.includes(ext)) throw new MarcaErro(`Logo "${basename(logoOrigem)}" não é png, jpg, svg ou webp. Pergunte de novo.`);
+      if (!pareceImagem(logoOrigem, ext)) throw new MarcaErro(`"${basename(logoOrigem)}" não parece uma imagem ${ext.slice(1)} de verdade (conteúdo diferente da extensão). Pergunte de novo.`);
       logoConfig = `marca/logo${ext}`;
     }
   }
@@ -136,13 +151,14 @@ export function aplicarMarca({ raiz = RAIZ_PADRAO, nome, cor, cor2, logo } = {})
     throw new MarcaErro(`Não consegui copiar o logo (${e.message}). Nada foi trocado.`);
   }
   for (const [t, final] of tmps) renameSync(t, final); // substitui o logo de mesma extensão de uma vez
-  for (const base of [painelDir, docsDir]) limparLogos(join(base, "marca"), logoOrigem ? basename(logoConfig) : null);
 
   // 4) Config e docs, também com tmp + rename.
   const gravar = (caminho, texto) => { const t = `${caminho}.${process.pid}.tmp`; writeFileSync(t, texto); renameSync(t, caminho); };
   gravar(configPath, config);
   gravar(join(docsDir, "marca.config.js"), `window.ZX = window.ZX || {};\n${bloco}`);
   copyFileSync(join(painelDir, "marca.js"), join(docsDir, "marca.js"));
+  // 5) Só agora, com tudo gravado e apontando para o logo novo, some o logo antigo (outra extensão).
+  for (const base of [painelDir, docsDir]) limparLogos(join(base, "marca"), logoOrigem ? basename(logoConfig) : null);
 
   return { marca, avisos };
 }
@@ -174,7 +190,11 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       let dados;
       try { dados = JSON.parse(readFileSync(0, "utf8")); } catch { throw new MarcaErro("JSON inválido na entrada padrão. Esperado: {\"nome\":\"...\",\"cor\":\"#RRGGBB\",\"cor2\":\"\",\"logo\":\"\"}"); }
       if (!dados || typeof dados !== "object" || Array.isArray(dados)) throw new MarcaErro("JSON da marca deve ser um objeto.");
-      for (const k of ["nome", "cor", "cor2", "logo"]) if (args[k] === undefined && dados[k] !== undefined) args[k] = String(dados[k]);
+      for (const k of ["nome", "cor", "cor2", "logo"]) {
+        if (dados[k] === undefined || dados[k] === null) continue;
+        if (typeof dados[k] !== "string") throw new MarcaErro(`Campo "${k}" do JSON deve ser texto.`);
+        if (args[k] === undefined) args[k] = dados[k];
+      }
     }
     const { marca, avisos } = aplicarMarca({ ...args, raiz: args.raiz ? resolve(args.raiz) : RAIZ_PADRAO });
     for (const a of avisos) console.log(`⚠️  ${a}`);

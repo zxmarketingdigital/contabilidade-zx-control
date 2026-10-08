@@ -10,6 +10,7 @@ import "../../painel/marca.js";
 import { aplicarMarca, MarcaErro } from "../../setup/marca.mjs";
 
 const Z = (globalThis as any).ZXMarca;
+const PNG = (t: string) => Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.from(t)]);
 const REPO = join(__dirname, "..", "..");
 
 describe("legivelNoClaro (texto da marca no PDF)", () => {
@@ -135,7 +136,7 @@ describe("setup/marca.mjs (aplicarMarca)", () => {
     mkdirSync(join(raiz, "painel"), { recursive: true });
     mkdirSync(join(raiz, "docs"), { recursive: true });
     for (const f of ["config.example.js", "marca.js"]) copyFileSync(join(REPO, "painel", f), join(raiz, "painel", f));
-    writeFileSync(join(raiz, "logo-teste.png"), "PNG-FALSO");
+    writeFileSync(join(raiz, "logo-teste.png"), PNG("FALSO"));
   });
   afterEach(() => rmSync(raiz, { recursive: true, force: true }));
 
@@ -153,7 +154,7 @@ describe("setup/marca.mjs (aplicarMarca)", () => {
     expect(zx.marca).toEqual({ nome: "Escritório Silva", corPrimaria: "#1D4ED8", corSecundaria: "#0B1F4D", logo: "marca/logo.png" });
     expect(zx.prazoAlertaDias).toBe(5); // o resto da config sobrevive
     expect(Z.lerMarca(zx)).toEqual(zx.marca); // o que o setup grava é exatamente o que o painel aceita
-    expect(readFileSync(join(raiz, "painel", "marca", "logo.png"), "utf8")).toBe("PNG-FALSO");
+    expect(readFileSync(join(raiz, "painel", "marca", "logo.png")).equals(PNG("FALSO"))).toBe(true);
     expect(existsSync(join(raiz, "docs", "marca", "logo.png"))).toBe(true);
     expect(existsSync(join(raiz, "docs", "marca.js"))).toBe(true);
     const docsCfg = readFileSync(join(raiz, "docs", "marca.config.js"), "utf8");
@@ -214,10 +215,10 @@ describe("setup/marca.mjs (aplicarMarca)", () => {
   it("logo com espaço no caminho e caminho absoluto funcionam e viram marca/logo.<ext>", () => {
     mkdirSync(join(raiz, "minha pasta"), { recursive: true });
     const origem = join(raiz, "minha pasta", "Logo Escritório.PNG");
-    writeFileSync(origem, "PNG-ESPACO");
+    writeFileSync(origem, PNG("ESPACO"));
     aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: origem });
     expect(lerConfig().marca.logo).toBe("marca/logo.png");
-    expect(readFileSync(join(raiz, "painel", "marca", "logo.png"), "utf8")).toBe("PNG-ESPACO");
+    expect(readFileSync(join(raiz, "painel", "marca", "logo.png")).equals(PNG("ESPACO"))).toBe(true);
   });
 
   it("CLI --json - lê da entrada padrão: valor com $(...) não executa nada e invalido sai 2", () => {
@@ -252,11 +253,11 @@ describe("setup/marca.mjs (aplicarMarca)", () => {
     aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: join(raiz, "logo-teste.png") });
     const sumido = join(raiz, "nao-existe.png");
     expect(() => aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: sumido })).toThrow(MarcaErro);
-    expect(readFileSync(join(raiz, "painel", "marca", "logo.png"), "utf8")).toBe("PNG-FALSO");
-    writeFileSync(join(raiz, "novo.svg"), "<svg/>");
+    expect(readFileSync(join(raiz, "painel", "marca", "logo.png")).equals(PNG("FALSO"))).toBe(true);
+    writeFileSync(join(raiz, "novo.svg"), "<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
     aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: join(raiz, "novo.svg") });
     expect(existsSync(join(raiz, "painel", "marca", "logo.png"))).toBe(false);
-    expect(readFileSync(join(raiz, "painel", "marca", "logo.svg"), "utf8")).toBe("<svg/>");
+    expect(readFileSync(join(raiz, "painel", "marca", "logo.svg"), "utf8")).toContain("<svg");
     expect(lerConfig().marca.logo).toBe("marca/logo.svg");
   });
 });
@@ -272,5 +273,32 @@ describe("contraste em cinza médio e superfícies", () => {
   it("logoValido só aceita o nome que o setup grava", () => {
     expect(Z.logoValido("marca/outro.png")).toBeNull();
     expect(Z.logoValido("marca/logo.png")).toBe("marca/logo.png");
+  });
+});
+
+describe("logo de origem", () => {
+  let raiz: string;
+  beforeEach(() => {
+    raiz = mkdtempSync(join(tmpdir(), "marca-test-"));
+    mkdirSync(join(raiz, "painel"), { recursive: true });
+    mkdirSync(join(raiz, "docs"), { recursive: true });
+    for (const f of ["config.example.js", "marca.js"]) copyFileSync(join(REPO, "painel", f), join(raiz, "painel", f));
+  });
+  afterEach(() => rmSync(raiz, { recursive: true, force: true }));
+
+  it("recusa symlink de origem e arquivo cujo conteúdo não é imagem (ex.: .env renomeado)", () => {
+    writeFileSync(join(raiz, ".env"), "SUPABASE_SERVICE_KEY=segredo");
+    symlinkSync(join(raiz, ".env"), join(raiz, "logo.png"));
+    expect(() => aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: join(raiz, "logo.png") })).toThrow(/link simbólico/);
+    writeFileSync(join(raiz, "falso.png"), "SUPABASE_SERVICE_KEY=segredo");
+    expect(() => aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: join(raiz, "falso.png") })).toThrow(/não parece uma imagem/);
+    expect(existsSync(join(raiz, "docs", "marca"))).toBe(false);
+  });
+
+  it("CLI: nome null ou de tipo errado no JSON sai 2", () => {
+    for (const j of [{ nome: null }, { nome: 5 }, { nome: "X", cor: 7 }]) {
+      const r = spawnSync("node", [join(REPO, "setup", "marca.mjs"), "--raiz", raiz, "--json", "-"], { input: JSON.stringify(j), encoding: "utf8" });
+      expect(r.status).toBe(2);
+    }
   });
 });
