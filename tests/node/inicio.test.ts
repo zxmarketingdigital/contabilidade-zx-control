@@ -50,6 +50,10 @@ describe("demo: GET /api/prazos tem o mesmo contrato do Worker real (src/app.ts)
 // DOM de mentira: só o suficiente para o painel/app.js rodar em Node.
 function criarPainel(apiFetch: (url: string, init?: any) => Promise<any>) {
   const els = new Map<string, any>();
+  const abas = ["inicio", "agentes", "empresas", "crm", "competencias", "agenda", "relatorio", "saidas"].map((t) => {
+    const h: Record<string, Function> = {};
+    return { dataset: { tab: t }, classList: { toggle() {}, add() {}, remove() {} }, addEventListener(e: string, fn: Function) { h[e] = fn; }, clicar: () => h.click?.() };
+  });
   const elemento = (id: string) => {
     if (!els.has(id)) {
       const h: Record<string, Function> = {};
@@ -63,6 +67,7 @@ function criarPainel(apiFetch: (url: string, init?: any) => Promise<any>) {
     }
     return els.get(id);
   };
+  elemento("tabs").querySelectorAll = () => abas;
   const ctx: any = {
     ZX: { mode: "demo", apiBase: "/api", token: TOKEN, prazoAlertaDias: 5 },
     document: { addEventListener() {}, getElementById: elemento, querySelectorAll: () => [], createElement: () => elemento("_x"), body: elemento("_body") },
@@ -71,7 +76,7 @@ function criarPainel(apiFetch: (url: string, init?: any) => Promise<any>) {
   };
   ctx.window = ctx;
   runInNewContext(readFileSync(join(REPO, "painel", "app.js"), "utf8"), ctx);
-  return { elemento, ctx };
+  return { elemento, ctx, aba: (t: string) => abas.find((a) => a.dataset.tab === t)! };
 }
 const entrar = async (p: ReturnType<typeof criarPainel>) => {
   p.elemento("login-email").value = "a@b.c";
@@ -110,5 +115,36 @@ describe("painel: tela Início", () => {
     const html = p.elemento("dash-cards").innerHTML;
     expect(html).not.toContain("Carregando");
     expect(html).toContain("Failed to fetch");
+  });
+
+  it("falha no Relatório não deixa lançamentos financeiros antigos na tela", async () => {
+    const resp = (status: number, corpo: unknown) => Promise.resolve({ status, ok: status < 400, json: () => Promise.resolve(corpo) });
+    const p = criarPainel((url) => (url.startsWith("/api/competencias") && quebrar ? resp(500, { error: "banco fora do ar" }) : resp(200, url.startsWith("/api/financeiro") ? {} : [])));
+    let quebrar = false;
+    await entrar(p);
+    p.elemento("fin-cards").innerHTML = "<b>ANTIGO</b>";
+    p.elemento("rec-tbl").innerHTML = "<b>ANTIGO</b>";
+    quebrar = true;
+    p.aba("relatorio").clicar();
+    await new Promise((r) => setTimeout(r, 100));
+    expect(p.elemento("rel-cards").innerHTML).toContain("banco fora do ar");
+    for (const id of ["fin-cards", "rec-tbl", "cus-tbl"]) expect(p.elemento(id).innerHTML).not.toContain("ANTIGO");
+  });
+
+  it("falha atrasada de uma consulta antiga não apaga o resultado da mais nova", async () => {
+    const ok = (corpo: unknown) => Promise.resolve({ status: 200, ok: true, json: () => Promise.resolve(corpo) });
+    let n = 0;
+    const p = criarPainel((url) => {
+      if (!url.startsWith("/api/competencias")) return ok([]);
+      return ++n === 2 ? new Promise((_, rej) => setTimeout(() => rej(new TypeError("antiga falhou")), 80)) : ok([]);
+    });
+    await entrar(p); // 1ª chamada de competencias (n=1) ok
+    p.aba("inicio").clicar(); // n=2: lenta e vai falhar
+    await new Promise((r) => setTimeout(r, 10));
+    p.aba("inicio").clicar(); // n=3: ok, mais nova
+    await new Promise((r) => setTimeout(r, 200));
+    const html = p.elemento("dash-cards").innerHTML;
+    expect(html).toContain("Prazos vencidos");
+    expect(html).not.toContain("antiga falhou");
   });
 });

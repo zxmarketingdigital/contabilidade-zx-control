@@ -554,6 +554,7 @@
     await carregarEmpresas(true);
     $("rel-cards").innerHTML = `<div class="empty">${SPINNER} Calculando…</div>`;
     $("rel-rank").innerHTML = "";
+    ["fin-cards", "rec-tbl", "cus-tbl"].forEach((id) => { $(id).innerHTML = ""; }); // nada de lançamento antigo enquanto recarrega
     const [prazos, comps] = await Promise.all([api("/prazos"), api("/competencias")]);
     const total = prazos.length;
     const cumpridos = prazos.filter((p) => p.status === "cumprido").length;
@@ -734,11 +735,13 @@
   // vira uma mensagem com "Tentar de novo". Os carregadores são chamados de vários pontos
   // (abas, filtros, depois de salvar), por isso o embrulho troca a própria função, não só o render().
   function protegido(fn, alvoId, limpar = []) {
+    let geracao = 0; // só a chamada mais recente pode escrever o erro (falha atrasada de uma consulta antiga não apaga a tela atual)
     const embrulhado = async (...args) => {
+      const minha = ++geracao;
       try {
         return await fn(...args);
       } catch (err) {
-        if (!token) return; // sessão caiu (401): a tela de login já está de volta
+        if (!token || minha !== geracao) return; // sessão caiu (401): login já voltou · ou há consulta mais nova em curso
         const alvo = $(alvoId);
         if (!alvo) return;
         limpar.forEach((id) => { const el = $(id); if (el) el.innerHTML = ""; });
@@ -756,7 +759,7 @@
   loadCompetencias = protegido(loadCompetencias, "comp-tbl");
   loadAgenda = protegido(loadAgenda, "ag-tbl");
   loadSaidas = protegido(loadSaidas, "sa-tbl");
-  loadRelatorio = protegido(loadRelatorio, "rel-cards", ["rel-rank"]);
+  loadRelatorio = protegido(loadRelatorio, "rel-cards", ["rel-rank", "fin-cards", "rec-tbl", "cus-tbl"]);
   loadFinanceiro = protegido(loadFinanceiro, "fin-cards", ["rec-tbl", "cus-tbl"]);
 
   function openModal(titulo, html, onConfirm, _x, okLabel = "Salvar") {
