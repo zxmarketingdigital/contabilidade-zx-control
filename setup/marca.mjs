@@ -173,8 +173,19 @@ export function aplicarMarca({ raiz = RAIZ_PADRAO, nome, cor, cor2, logo } = {})
     for (const base of [painelDir, docsDir]) limparLogos(join(base, "marca"), logoOrigem ? basename(logoConfig) : null);
   } catch (e) {
     for (const [t] of tmps) rmSync(t, { force: true });
-    for (const [c, conteudo] of antes) { try { if (conteudo === null) rmSync(c, { force: true }); else writeFileSync(c, conteudo); } catch { /* melhor esforço */ } }
-    throw new MarcaErro(`Falha ao gravar a marca (${e.message}). Estado anterior restaurado; nada mudou.`);
+    const falhas = [];
+    for (const [c, conteudo] of antes) {
+      try {
+        if (conteudo === null) rmSync(c, { force: true }); else writeFileSync(c, conteudo);
+        const ok = conteudo === null ? !existsSync(c) : readFileSync(c).equals(conteudo);
+        if (!ok) throw new Error("conteúdo restaurado difere do original");
+      } catch (e2) {
+        falhas.push(`${c} (${e2.message})`);
+        if (conteudo !== null) { try { writeFileSync(`${c}.marca-anterior`, conteudo); } catch { /* sem como salvar cópia */ } }
+      }
+    }
+    if (falhas.length) throw new MarcaErro(`Falha ao gravar a marca (${e.message}) E o estado anterior NÃO foi totalmente restaurado: ${falhas.join("; ")}. Cópias do conteúdo anterior ficaram em <arquivo>.marca-anterior quando possível. Painel e docs podem estar com marcas diferentes: corrija a causa e rode o comando de novo.`);
+    throw new MarcaErro(`Falha ao gravar a marca (${e.message}). Estado anterior restaurado e verificado; nada mudou.`);
   }
 
   return { marca, avisos };

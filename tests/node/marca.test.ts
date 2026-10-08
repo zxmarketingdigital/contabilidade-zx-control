@@ -288,7 +288,7 @@ describe("troca transacional", () => {
       const antes = readFileSync(join(raiz, "painel", "config.js"), "utf8");
       // docs somente-leitura: a gravação do docs falha DEPOIS de o painel/config.js já ter sido trocado
       chmodSync(join(raiz, "docs"), 0o555);
-      try { expect(() => aplicarMarca({ raiz, nome: "Nova", cor: "#222222" })).toThrow(/restaurado/); }
+      try { expect(() => aplicarMarca({ raiz, nome: "Nova", cor: "#222222" })).toThrow(/restaurado e verificado/); }
       finally { chmodSync(join(raiz, "docs"), 0o755); }
       expect(readFileSync(join(raiz, "painel", "config.js"), "utf8")).toBe(antes);
       expect(existsSync(join(raiz, "painel", "marca", "logo.png"))).toBe(true);

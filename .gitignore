@@ -11,3 +11,4 @@ painel/marca/
 docs/marca/
 docs/marca.js
 docs/marca.config.js
+*.marca-anterior
