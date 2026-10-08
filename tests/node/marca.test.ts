@@ -23,6 +23,15 @@ describe("legivelNoClaro (texto da marca no PDF)", () => {
   });
 });
 
+describe("hover do botão primário", () => {
+  it("nunca fica com contraste menor que o do botão normal, em nenhuma cor", () => {
+    for (const c of ["#1D4ED8", "#FFFFFF", "#FFFF00", "#D97706", "#000000", "#7C3AED", "#16A34A", "#F59E0B"]) {
+      const v = Z.paleta(c);
+      expect(Z.contraste(v["--primary-hover"], v["--on-primary"])).toBeGreaterThanOrEqual(Z.contraste(c, v["--on-primary"]) - 0.001);
+    }
+  });
+});
+
 describe("normalizarHex", () => {
   it("aceita #RGB e #RRGGBB, normaliza para maiúsculas", () => {
     expect(Z.normalizarHex("#abc")).toBe("#AABBCC");

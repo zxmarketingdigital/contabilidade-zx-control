@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --primary:#D97706; --primary-light:#F59E0B; --primary-bright:#FCD34D; --primary-dark:#92400e;
+    --primary:#D97706; --primary-light:#F59E0B; --primary-hover:#F59E0B; --primary-bright:#FCD34D; --primary-dark:#92400e;
     /* Marca do aluno: marca.js sobrescreve estas vars. Aqui = padrão ZX (âmbar). */
     --brand:#D97706; --brand-2:#92400e; --primary-text:#D97706; --primary-rgb:217,119,6; --on-primary:#0D0D0D;
     --bg:#0D0D0D; --bg-alt:#0A0A0A; --surface:#1A1A1A; --surface2:#222; --footer:#080808;
@@ -124,7 +124,7 @@
 
   .btn-demo{display:inline-block;background:var(--primary);color:var(--on-primary);font-weight:700;border-radius:10px;
     padding:14px 26px;text-decoration:none;transition:.2s;font-size:1rem}
-  .btn-demo:hover{background:var(--primary-light)}
+  .btn-demo:hover{background:var(--primary-hover)}
   .btn-demo.sm{padding:10px 18px;font-size:.88rem;margin-top:22px}
 
   .chat{display:flex;flex-direction:column;gap:14px;max-width:800px;margin:0 auto}
@@ -152,6 +152,10 @@
     .agent{grid-template-columns:44px 1fr}.agent .tag{grid-column:2;justify-self:start;margin-top:6px}
     .msg{max-width:100%}
   }
+  .brand-logo{display:block;max-width:200px;max-height:56px;width:auto;height:auto;object-fit:contain;margin-bottom:18px}
+  .brand-logo[hidden]{display:none}
+  .marca-topo{display:flex;align-items:center;gap:12px;margin-bottom:18px;font-weight:700;color:var(--text)}
+  .marca-topo:empty{display:none}
 </style>
 <script src="marca.config.js"></script>
 <script src="marca.js"></script>
@@ -160,6 +164,7 @@
 
 <header>
   <div class="wrap">
+    <div class="marca-topo"><img class="brand-logo" data-marca-logo alt="" hidden><span data-marca-nome></span></div>
     <span class="kicker"><span class="dot"></span> Linha de Nicho ZX Control v3 · Contábil</span>
     <h1>Contabilidade ZX Control<span class="l2">5 agentes de IA para o contador solo e o escritório pequeno</span></h1>
     <p class="lead">Um mini sistema com login onde o contador digita ou cola a informação e a IA devolve o trabalho pronto: calendário de obrigações, enquadramento, comunicado ao cliente, orientação tributária e resposta ao Fisco.</p>

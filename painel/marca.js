@@ -73,6 +73,9 @@
     const p = normalizarHex(corPrimaria) || COR_PADRAO;
     const s = normalizarHex(corSecundaria);
     const dark = s || misturar(p, "#000000", 0.4);
+    const sobre = corSobre(p);
+    // Hover do botão: sai da cor na direção que AUMENTA o contraste com o texto do botão (nunca piora).
+    const hover = misturar(p, sobre === ESCURO ? BRANCO : "#000000", 0.12);
     return {
       "--brand": p,
       "--brand-2": dark,
@@ -82,7 +85,8 @@
       "--primary-dark": dark,
       "--primary-text": legivelNoEscuro(p),
       "--primary-rgb": paraRgb(p).join(", "),
-      "--on-primary": corSobre(p),
+      "--on-primary": sobre,
+      "--primary-hover": hover,
     };
   }
 

@@ -6,6 +6,7 @@
 :root {
   --primary: #D97706;
   --primary-light: #F59E0B;
+  --primary-hover: #F59E0B;
   --primary-bright: #FCD34D;
   --primary-dark: #92400E;
   /* Marca do aluno: painel/marca.js sobrescreve estas vars em runtime. Aqui = padrão ZX (âmbar). */
@@ -190,7 +191,7 @@ main { padding: 20px 22px 60px; max-width: 1160px; margin: 0 auto; }
 }
 .btn:hover { border-color: var(--muted); }
 .btn-primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 700; }
-.btn-primary:hover { background: var(--primary-light); }
+.btn-primary:hover { background: var(--primary-hover); }
 .btn-danger { background: transparent; border-color: rgba(239, 68, 68, 0.45); color: var(--red); }
 .btn-sm { padding: 5px 10px; font-size: 12px; }
 .row-actions { display: flex; gap: 6px; }
