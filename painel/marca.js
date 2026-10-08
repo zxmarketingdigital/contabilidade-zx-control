@@ -11,8 +11,8 @@
 // ════════════════════════════════════════════════════════════════════════
 (() => {
   const COR_PADRAO = "#D97706"; // âmbar ZX Control — fallback documentado
-  const FUNDO = "#0D0D0D"; // fundo do painel (style.css --bg)
-  const ESCURO = "#0D0D0D"; // texto sobre cor clara
+  const FUNDO = "#262626"; // superfície mais clara em que o texto da marca aparece (cards/--surface2 #222222 + folga)
+  const ESCURO = "#000000"; // texto sobre cor clara (preto puro: garante 4,5:1 mesmo em cinza médio como #777777)
   const BRANCO = "#FFFFFF";
   const CONTRASTE_TEXTO = 4.5; // WCAG AA para texto normal
 
@@ -95,7 +95,7 @@
     if (typeof v !== "string") return null;
     const s = v.trim();
     if (/^https:\/\/[^\s"'<>]+$/i.test(s)) return s;
-    if (/^marca\/[A-Za-z0-9._-]+\.(png|jpe?g|svg|webp)$/i.test(s)) return s;
+    if (/^marca\/logo\.(png|jpe?g|svg|webp)$/i.test(s)) return s; // só o nome que o setup grava
     return null;
   }
 

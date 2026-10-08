@@ -1,7 +1,7 @@
 // Marca do aluno: validação de cor/logo, paleta em runtime (painel/marca.js) e gravação (setup/marca.mjs).
 // Roda em Node puro (projeto "node" do vitest.config.ts): precisa de disco real, que o workerd não tem.
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, symlinkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runInNewContext } from "node:vm";
@@ -49,7 +49,7 @@ describe("paleta", () => {
     const p = Z.paleta("#D97706");
     expect(p["--primary"]).toBe("#D97706");
     expect(p["--primary-rgb"]).toBe("217, 119, 6");
-    expect(p["--on-primary"]).toBe("#0D0D0D");
+    expect(p["--on-primary"]).toBe("#000000");
     expect(p["--primary-text"]).toBe("#D97706"); // já tem contraste no fundo escuro: não mexe
   });
   it("cor escura: botão com texto branco e cor-como-texto clareada até ficar legível no fundo escuro", () => {
@@ -60,7 +60,7 @@ describe("paleta", () => {
     }
   });
   it("cor muito clara: botão com texto escuro (legibilidade)", () => {
-    expect(Z.paleta("#FFE066")["--on-primary"]).toBe("#0D0D0D");
+    expect(Z.paleta("#FFE066")["--on-primary"]).toBe("#000000");
   });
   it("secundária informada vira --brand-2 e --primary-dark; ausente, deriva uma versão mais escura", () => {
     const com = Z.paleta("#1D4ED8", "#0B1F4D");
@@ -233,5 +233,44 @@ describe("setup/marca.mjs (aplicarMarca)", () => {
     expect(ruim.status).toBe(2);
     const lixo = spawnSync("node", [join(REPO, "setup", "marca.mjs"), "--raiz", raiz, "--json", "-"], { input: "{nao-json", encoding: "utf8" });
     expect(lixo.status).toBe(2);
+  });
+
+  it("recusa destino que é link simbólico e não toca o alvo fora da raiz", () => {
+    const fora = join(raiz, "FORA"); mkdirSync(fora);
+    writeFileSync(join(fora, "alvo.txt"), "intacto");
+    symlinkSync(fora, join(raiz, "painel", "marca"));
+    expect(() => aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: join(raiz, "logo-teste.png") })).toThrow(/link simbólico/);
+    expect(readFileSync(join(fora, "alvo.txt"), "utf8")).toBe("intacto");
+    expect(existsSync(join(fora, "logo.png"))).toBe(false);
+    rmSync(join(raiz, "painel", "marca"));
+    symlinkSync(join(fora, "alvo.txt"), join(raiz, "painel", "config.js"));
+    expect(() => aplicarMarca({ raiz, nome: "X", cor: "#123456" })).toThrow(/link simbólico/);
+    expect(readFileSync(join(fora, "alvo.txt"), "utf8")).toBe("intacto");
+  });
+
+  it("troca de logo é atômica: falha na cópia mantém o logo antigo; troca de extensão remove o antigo", () => {
+    aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: join(raiz, "logo-teste.png") });
+    const sumido = join(raiz, "nao-existe.png");
+    expect(() => aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: sumido })).toThrow(MarcaErro);
+    expect(readFileSync(join(raiz, "painel", "marca", "logo.png"), "utf8")).toBe("PNG-FALSO");
+    writeFileSync(join(raiz, "novo.svg"), "<svg/>");
+    aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: join(raiz, "novo.svg") });
+    expect(existsSync(join(raiz, "painel", "marca", "logo.png"))).toBe(false);
+    expect(readFileSync(join(raiz, "painel", "marca", "logo.svg"), "utf8")).toBe("<svg/>");
+    expect(lerConfig().marca.logo).toBe("marca/logo.svg");
+  });
+});
+
+describe("contraste em cinza médio e superfícies", () => {
+  it("botão em #777777 e variações atinge 4,5:1 e texto da marca passa em #262626", () => {
+    for (const c of ["#777777", "#767676", "#787878", "#808080", "#414141", "#6B7280"]) {
+      const v = Z.paleta(c);
+      expect(Z.contraste(c, v["--on-primary"])).toBeGreaterThanOrEqual(4.5);
+      expect(Z.contraste(v["--primary-text"], "#262626")).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+  it("logoValido só aceita o nome que o setup grava", () => {
+    expect(Z.logoValido("marca/outro.png")).toBeNull();
+    expect(Z.logoValido("marca/logo.png")).toBe("marca/logo.png");
   });
 });

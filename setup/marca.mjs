@@ -19,7 +19,7 @@
 // Rode de novo com os 4 campos para trocar a marca: campo omitido volta ao padrão.
 // ════════════════════════════════════════════════════════════════════════
 
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -40,9 +40,9 @@ function caminhoLocal(p) {
   return resolve(s.startsWith("~/") ? join(homedir(), s.slice(2)) : s);
 }
 
-function limparLogos(dir) {
+function limparLogos(dir, manter = null) {
   if (!existsSync(dir)) return;
-  for (const f of readdirSync(dir)) if (/^logo\.[a-z0-9]+$/i.test(f)) rmSync(join(dir, f));
+  for (const f of readdirSync(dir)) if (f !== manter && /^logo\.[a-z0-9]+$/i.test(f)) rmSync(join(dir, f));
 }
 
 /** Valida os campos e grava tudo. Lança MarcaErro com mensagem pronta para o Claude repetir ao aluno. */
@@ -91,19 +91,9 @@ export function aplicarMarca({ raiz = RAIZ_PADRAO, nome, cor, cor2, logo } = {})
   // ── Efeitos: só depois de TODA a validação passar ──
   const painelDir = join(raiz, "painel");
   const docsDir = join(raiz, "docs");
-  for (const base of [painelDir, docsDir]) {
-    const dir = join(base, "marca");
-    limparLogos(dir);
-    if (logoOrigem) {
-      mkdirSync(dir, { recursive: true });
-      copyFileSync(logoOrigem, join(base, logoConfig));
-    }
-  }
-
-  const bloco = `${INICIO} (gerado por setup/marca.mjs — NAO edite à mão; rode \`node setup/marca.mjs --ajuda\`)\n` +
-    `window.ZX.marca = ${JSON.stringify(marca, null, 2)};\n${FIM}\n`;
-
   const configPath = join(painelDir, "config.js");
+
+  // 1) Lê o config (ou o exemplo) ANTES de mexer em qualquer arquivo: se faltar, nada foi alterado.
   let config;
   if (existsSync(configPath)) config = readFileSync(configPath, "utf8");
   else {
@@ -112,12 +102,46 @@ export function aplicarMarca({ raiz = RAIZ_PADRAO, nome, cor, cor2, logo } = {})
     config = readFileSync(exemplo, "utf8");
     avisos.push("painel/config.js não existia: criado a partir do config.example.js. Preencha os dados do Supabase/Worker (passo 5).");
   }
+  const bloco = `${INICIO} (gerado por setup/marca.mjs — NAO edite à mão; rode \`node setup/marca.mjs --ajuda\`)\n` +
+    `window.ZX.marca = ${JSON.stringify(marca, null, 2)};\n${FIM}\n`;
   const re = new RegExp(`${INICIO}[\\s\\S]*?${FIM}\\n?`);
   config = re.test(config) ? config.replace(re, () => bloco) : `${config.replace(/\s*$/, "\n")}\n${bloco}`;
-  writeFileSync(configPath, config);
 
-  // Docs (proposta/apresentação): mesmo bloco, mais uma cópia do loader.
-  writeFileSync(join(docsDir, "marca.config.js"), `window.ZX = window.ZX || {};\n${bloco}`);
+  // 2) Nenhum destino pode ser link simbólico: gravar/apagar seguiria o link para fora da raiz.
+  const destinos = [painelDir, docsDir, join(painelDir, "marca"), join(docsDir, "marca"), configPath,
+    join(docsDir, "marca.config.js"), join(docsDir, "marca.js")];
+  for (const base of [join(painelDir, "marca"), join(docsDir, "marca")]) {
+    if (existsSync(base) && !lstatSync(base).isSymbolicLink()) for (const f of readdirSync(base)) destinos.push(join(base, f));
+  }
+  for (const d of destinos) {
+    let lst = null;
+    try { lst = lstatSync(d); } catch { /* não existe: ok */ }
+    if (lst && lst.isSymbolicLink()) throw new MarcaErro(`${d} é um link simbólico; recuso gravar por ele. Remova o link e rode de novo.`);
+  }
+
+  // 3) Logo: copia PRIMEIRO para arquivo temporário; só depois de todas as cópias darem certo troca (rename atômico)
+  //    e remove o logo antigo. Falha no meio nunca deixa a marca sem logo.
+  const tmps = [];
+  try {
+    if (logoOrigem) {
+      for (const base of [painelDir, docsDir]) {
+        mkdirSync(join(base, "marca"), { recursive: true });
+        const tmp = join(base, "marca", `.logo-novo-${process.pid}.tmp`);
+        tmps.push([tmp, join(base, logoConfig)]);
+        copyFileSync(logoOrigem, tmp);
+      }
+    }
+  } catch (e) {
+    for (const [t] of tmps) rmSync(t, { force: true });
+    throw new MarcaErro(`Não consegui copiar o logo (${e.message}). Nada foi trocado.`);
+  }
+  for (const [t, final] of tmps) renameSync(t, final); // substitui o logo de mesma extensão de uma vez
+  for (const base of [painelDir, docsDir]) limparLogos(join(base, "marca"), logoOrigem ? basename(logoConfig) : null);
+
+  // 4) Config e docs, também com tmp + rename.
+  const gravar = (caminho, texto) => { const t = `${caminho}.${process.pid}.tmp`; writeFileSync(t, texto); renameSync(t, caminho); };
+  gravar(configPath, config);
+  gravar(join(docsDir, "marca.config.js"), `window.ZX = window.ZX || {};\n${bloco}`);
   copyFileSync(join(painelDir, "marca.js"), join(docsDir, "marca.js"));
 
   return { marca, avisos };
