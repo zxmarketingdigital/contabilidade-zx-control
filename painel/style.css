@@ -8,6 +8,13 @@
   --primary-light: #F59E0B;
   --primary-bright: #FCD34D;
   --primary-dark: #92400E;
+  /* Marca do aluno: painel/marca.js sobrescreve estas vars em runtime. Aqui = padrão ZX (âmbar). */
+  --brand: #D97706;
+  --brand-2: #92400E;
+  --primary-text: #D97706; /* cor da marca usada como TEXTO sobre fundo escuro (contraste garantido pelo marca.js) */
+  --primary-rgb: 217, 119, 6;
+  --on-primary: #0D0D0D; /* texto sobre botão primário */
+  --warn: #F59E0B; /* ALERTA (prazo próximo): semântica fixa, não acompanha a marca */
   --bg: #0D0D0D;
   --bg-alt: #0A0A0A;
   --surface: #1A1A1A;
@@ -45,7 +52,7 @@ a { color: var(--primary-light); }
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 /* ── Login ── */
@@ -54,7 +61,7 @@ a { color: var(--primary-light); }
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: radial-gradient(ellipse at 50% 0%, rgba(217, 119, 6, 0.13), transparent 60%), var(--bg-alt);
+  background: radial-gradient(ellipse at 50% 0%, rgba(var(--primary-rgb), 0.13), transparent 60%), var(--bg-alt);
 }
 .login-card {
   width: 360px;
@@ -71,6 +78,12 @@ a { color: var(--primary-light); }
   margin: 8px 0 2px;
 }
 .login-card .sub { color: var(--text-secondary); font-size: 13px; margin-bottom: 22px; }
+
+/* ── Logo da marca do aluno (marca.js) ── */
+.brand-logo { display: block; max-width: 180px; max-height: 44px; width: auto; height: auto; object-fit: contain; }
+.brand-logo[hidden] { display: none; }
+.login-card .brand-logo { max-height: 56px; margin-bottom: 14px; }
+header.top .brand-logo { max-height: 30px; max-width: 140px; }
 
 /* ── Header sticky ── */
 header.top {
@@ -113,8 +126,8 @@ nav.tabs button {
   cursor: pointer;
 }
 nav.tabs button.active {
-  background: rgba(217, 119, 6, 0.14);
-  border-color: rgba(217, 119, 6, 0.35);
+  background: rgba(var(--primary-rgb), 0.14);
+  border-color: rgba(var(--primary-rgb), 0.35);
   color: var(--primary-bright);
 }
 nav.tabs { border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 2px; }
@@ -133,8 +146,8 @@ nav.tabs { border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-
 .stat-lbl { font-size: 12px; color: var(--text-secondary); }
 .stat-card.c-red    { border-top: 3px solid var(--red); }
 .stat-card.c-red    .stat-num { color: var(--red); }
-.stat-card.c-amber  { border-top: 3px solid var(--primary-light); }
-.stat-card.c-amber  .stat-num { color: var(--primary-light); }
+.stat-card.c-amber  { border-top: 3px solid var(--warn); }
+.stat-card.c-amber  .stat-num { color: var(--warn); }
 .stat-card.c-green  { border-top: 3px solid var(--green); }
 .stat-card.c-green  .stat-num { color: var(--green); }
 .stat-card.c-indigo { border-top: 3px solid var(--indigo); }
@@ -162,7 +175,7 @@ main { padding: 20px 22px 60px; max-width: 1160px; margin: 0 auto; }
 }
 .agent-card h3 { margin: 0; font-size: 0.98rem; }
 .agent-card p { margin: 0; color: var(--text-secondary); font-size: 12.5px; min-height: 34px; }
-.agent-num { font-family: var(--mono); font-size: 11px; color: var(--primary); }
+.agent-num { font-family: var(--mono); font-size: 11px; color: var(--primary-text); }
 
 /* ── Botões ── */
 .btn {
@@ -176,7 +189,7 @@ main { padding: 20px 22px 60px; max-width: 1160px; margin: 0 auto; }
   cursor: pointer;
 }
 .btn:hover { border-color: var(--muted); }
-.btn-primary { background: var(--primary); border-color: var(--primary); color: #0d0d0d; font-weight: 700; }
+.btn-primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 700; }
 .btn-primary:hover { background: var(--primary-light); }
 .btn-danger { background: transparent; border-color: rgba(239, 68, 68, 0.45); color: var(--red); }
 .btn-sm { padding: 5px 10px; font-size: 12px; }
@@ -198,12 +211,12 @@ th {
 td { padding: 11px 14px; font-size: 13px; color: var(--text-secondary); border-top: 1px solid var(--border); }
 td:first-child { color: var(--text); font-weight: 500; }
 tbody tr:nth-child(odd) { background: rgba(255, 255, 255, 0.012); }
-tbody tr:hover { background: rgba(217, 119, 6, 0.045); }
+tbody tr:hover { background: rgba(var(--primary-rgb), 0.045); }
 /* Linha inteira tintada por urgência (a agenda salta aos olhos) */
 tr.row-vencido td { background: rgba(239, 68, 68, 0.09); }
 tr.row-vencido td:first-child { box-shadow: inset 3px 0 0 var(--red); color: #fecaca; }
 tr.row-alerta td { background: rgba(245, 158, 11, 0.07); }
-tr.row-alerta td:first-child { box-shadow: inset 3px 0 0 var(--primary-light); }
+tr.row-alerta td:first-child { box-shadow: inset 3px 0 0 var(--warn); }
 tr.row-inativo { opacity: 0.5; }
 .toolbar { display: flex; align-items: center; margin-bottom: 14px; gap: 10px; }
 .toolbar .spacer { flex: 1; }
@@ -221,7 +234,7 @@ tr.row-inativo { opacity: 0.5; }
   white-space: nowrap;
 }
 .badge.ok, .badge.aberta, .badge.pendente { background: rgba(74, 222, 128, 0.1); color: var(--green); border-color: rgba(74, 222, 128, 0.3); }
-.badge.alerta { background: rgba(245, 158, 11, 0.12); color: var(--primary-light); border-color: rgba(245, 158, 11, 0.32); }
+.badge.alerta { background: rgba(245, 158, 11, 0.12); color: var(--warn); border-color: rgba(245, 158, 11, 0.32); }
 .badge.vencido, .badge.falhou { background: rgba(239, 68, 68, 0.1); color: var(--red); border-color: rgba(239, 68, 68, 0.3); }
 .badge.cumprido, .badge.fechada { background: rgba(255, 255, 255, 0.05); color: var(--muted); border-color: var(--border-light); }
 .badge.regime { background: rgba(129, 140, 248, 0.1); color: var(--indigo); border-color: rgba(129, 140, 248, 0.3); }
@@ -241,7 +254,7 @@ input, select, textarea {
 }
 input.mono, select { font-family: var(--mono); }
 textarea { min-height: 110px; resize: vertical; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.18); }
 
 /* ── Modal ── */
 .modal-backdrop {
@@ -267,7 +280,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
 /* ── Toast ── */
 #toast {
   position: fixed; bottom: 18px; right: 18px; background: var(--surface2);
-  border: 1px solid rgba(217, 119, 6, 0.5); border-radius: var(--radius);
+  border: 1px solid rgba(var(--primary-rgb), 0.5); border-radius: var(--radius);
   padding: 11px 16px; font-size: 13px; z-index: 80; opacity: 0; transform: translateY(8px);
   transition: all 0.2s; pointer-events: none;
 }
@@ -277,7 +290,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--p
 /* ── Spinner âmbar ── */
 .spinner {
   display: inline-block; width: 13px; height: 13px; vertical-align: -2px; margin-right: 6px;
-  border: 2px solid rgba(217, 119, 6, 0.25); border-top-color: var(--primary);
+  border: 2px solid rgba(var(--primary-rgb), 0.25); border-top-color: var(--primary);
   border-radius: 50%; animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }

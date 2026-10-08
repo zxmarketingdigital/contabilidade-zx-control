@@ -10,6 +10,8 @@
 
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
+import { readFileSync } from "node:fs";
+import { runInNewContext } from "node:vm";
 import { join, extname, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as DB from "./data.mjs";
@@ -35,7 +37,7 @@ const novoId = (p) => `${p}${++seq}`;
 const agora = () => new Date().toISOString();
 const comDisc = (t) => `${t}\n\n${DISCLAIMER}`;
 
-const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "application/javascript; charset=utf-8", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
+const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "application/javascript; charset=utf-8", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp" };
 const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "Authorization, Content-Type", "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS" };
 
 function json(res, data, status = 200) {
@@ -50,13 +52,25 @@ function readBody(req) {
   });
 }
 
-// Config da demo, injetada em /config.js (login fake, token demo).
-const CONFIG_JS = `window.ZX = { mode: "demo", apiBase: "/api", token: ${JSON.stringify(TOKEN)}, prazoAlertaDias: 5 };`;
+// Marca do aluno: a demo mostra o painel com a marca gravada por `node setup/marca.mjs` em painel/config.js.
+// Só o bloco `window.ZX.marca` é aproveitado (a config real, com chaves do Supabase, nunca é exposta pela demo).
+function marcaDoAluno() {
+  try {
+    const sandbox = { window: {} };
+    runInNewContext(readFileSync(join(PAINEL, "config.js"), "utf8"), sandbox, { timeout: 500 });
+    return sandbox.window.ZX?.marca;
+  } catch {
+    return undefined; // sem painel/config.js (ou ilegível): demo com a marca padrão
+  }
+}
+
+// Config da demo, injetada em /config.js (login fake, token demo). Relida a cada pedido: trocou a marca, recarregou.
+const configJs = () => `window.ZX = ${JSON.stringify({ mode: "demo", apiBase: "/api", token: TOKEN, prazoAlertaDias: 5, marca: marcaDoAluno() })};`;
 
 async function serveStatic(req, res) {
   if (req.url === "/config.js") {
     res.writeHead(200, { "Content-Type": MIME[".js"] });
-    return res.end(CONFIG_JS);
+    return res.end(configJs());
   }
   const p = req.url === "/" ? "/index.html" : req.url.split("?")[0];
   try {

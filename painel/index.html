@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contabilidade ZX Control</title>
+  <title data-marca-nome>Contabilidade ZX Control</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
@@ -11,12 +11,14 @@
   />
   <link rel="stylesheet" href="style.css" />
   <script src="config.js"></script>
+  <script src="marca.js"></script>
 </head>
 <body>
   <!-- ── Login ── -->
   <section id="login">
     <form class="login-card" id="login-form">
-      <div class="eyebrow">ZX Control · Contabilidade</div>
+      <img class="brand-logo" data-marca-logo alt="" hidden />
+      <div class="eyebrow" data-marca-nome>ZX Control · Contabilidade</div>
       <h1>Acesso ao escritório</h1>
       <div class="sub" id="login-sub">Entre com seu e-mail e senha.</div>
       <label class="field"><span>E-mail</span><input type="email" id="login-email" required /></label>
@@ -30,7 +32,8 @@
   <div id="app" class="hidden">
     <header class="top">
       <span class="dot"></span>
-      <h1>Contabilidade ZX Control</h1>
+      <img class="brand-logo" data-marca-logo alt="" hidden />
+      <h1 data-marca-nome>Contabilidade ZX Control</h1>
       <span class="spacer"></span>
       <span class="userbox" id="userbox"></span>
       <button class="btn btn-sm" id="logout">Sair</button>

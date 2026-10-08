@@ -28,7 +28,17 @@ aluno tem todas em mãos antes de prosseguir):
 ## Passo a passo (conduza um de cada vez)
 
 1. **Boas-vindas e checagem.** Apresente o produto em 2 frases e confirme as 3 contas.
-2. **Nome do escritório.** Pergunte o nome (vai no painel e nas saídas) → `ESCRITORIO_NOME`.
+2. **Nome e marca do escritório.** O painel, a proposta e os PDFs saem com a marca do escritório que o
+   aluno vai atender, não com a nossa. Pergunte **uma coisa de cada vez** e guarde as respostas (a
+   gravação é no passo 5):
+   - **Nome** (obrigatório; vai no painel e nas saídas) → `ESCRITORIO_NOME` no `.env` e `nome` da marca.
+   - **Cor principal** em hexadecimal, ex.: `#1D4ED8` (aceita `#RGB`). Se o aluno não souber, ajude a
+     escolher a partir do logo/site do escritório. Se ele não quiser escolher, vale o âmbar padrão ZX,
+     **mas avise com todas as letras**: "Vou usar a cor padrão ZX (âmbar). Dá para trocar depois em
+     `painel/config.js`."
+   - **Cor secundária** (opcional): outra cor da marca. Em branco = o sistema deriva uma versão mais escura.
+   - **Logo** (opcional): caminho de uma imagem png/jpg/svg/webp no computador dele, ou uma URL `https://`.
+     Sem logo, o painel mostra só o nome em texto. **Nunca** deixe o logo ZX no lugar.
 3. **Supabase.** Peça, **uma de cada vez**: `SUPABASE_URL` (Project Settings ▸ API ▸ Project URL),
    `SUPABASE_SERVICE_KEY` (mesma tela ▸ service_role — secreta) e a `anon` key (pro painel).
 4. **Gemini.** Peça `GEMINI_API_KEY` e explique onde gerar.
@@ -37,6 +47,14 @@ aluno tem todas em mãos antes de prosseguir):
    `mode: "prod"`, `apiBase` (URL do Worker + `/api`), `supabaseUrl`, `supabaseAnonKey` (a `anon` key —
    pública por design) e `prazoAlertaDias`. **`.env` e `painel/config.js` não vão pro git** (já no
    `.gitignore`); o `config.example.js` SIM é versionado. Nunca commite credencial.
+   **Depois de preencher o `painel/config.js`, grave a marca do passo 2** com o utilitário de validação
+   (ele não pergunta nada, quem conversou com o aluno foi você):
+   `node setup/marca.mjs --nome "<nome>" --cor "<#hex>" --cor2 "<#hex>" --logo "<caminho ou URL>"`
+   (omita `--cor2`/`--logo` se o aluno não informou; omitir `--cor` grava o padrão ZX e imprime o aviso).
+   Saída `2` = campo inválido: leia a mensagem ao aluno e pergunte aquele campo de novo. Ele grava o bloco
+   `window.ZX.marca` no `painel/config.js`, copia o logo para `painel/marca/` e republica a marca para a
+   proposta e a apresentação em `docs/`. Para trocar a marca depois, rode o mesmo comando com os 4 campos.
+   Peça ao aluno para abrir o painel (ou `node demo/server.mjs`) e **confirmar a cor e o logo** antes de seguir.
 6. **Aplique o banco.** Rode as migrations de `supabase/migrations/` no Supabase do escritório
    (RLS já vem habilitado em toda tabela). Confirme que as **8 tabelas** existem: `empresas_cliente`,
    `competencias`, `prazos`, `saidas_geradas` (núcleo) + `leads`, `receitas`, `custos` (CRM/Financeiro)
@@ -55,4 +73,5 @@ aluno tem todas em mãos antes de prosseguir):
 - **RLS em toda tabela** — não desabilite. Confirme que ficou ligado após as migrations.
 - **Disclaimer e "não afirma valor/lei"** já estão embutidos no produto — não remova.
 
-Ao terminar, mostre ao aluno o painel no ar e a `docs/apresentacao.html` para ele revender.
+Ao terminar, mostre ao aluno o painel no ar e a `docs/proposta.html` (já com a marca dele) para ele revender;
+a `docs/apresentacao.html` é o material de instalação e aplica só as cores.

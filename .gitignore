@@ -6,3 +6,8 @@ dist/
 *.local
 painel/config.js
 PROJETO.md
+# Marca do aluno (gerados por setup/marca.mjs)
+painel/marca/
+docs/marca/
+docs/marca.js
+docs/marca.config.js

@@ -286,11 +286,18 @@
     const w = window.open("", "_blank", "width=720,height=900");
     if (!w) { toast("Permita pop-ups para salvar o PDF."); return; }
     const esq = texto.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    // Marca do aluno (marca.js): nome, cor e logo no cabeçalho do PDF; sem marca = padrão do produto.
+    const Z = window.ZXMarca;
+    const m = Z ? Z.lerMarca(ZX) : { nome: "", corPrimaria: null, logo: null };
+    const nome = esc(m.nome || "Contabilidade ZX Control");
+    const cor = m.corPrimaria || "#D97706";
+    const corTexto = Z ? Z.misturar(cor, "#000000", 0.4) : "#92400e"; // legível sobre papel branco
+    const logo = m.logo ? `<img src="${esc(new URL(m.logo, location.href).href)}" alt="" style="display:block;max-height:40px;max-width:180px;margin-bottom:10px">` : "";
     w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
-      <title>Contabilidade ZX Control</title><style>
+      <title>${nome}</title><style>
       body{font-family:Georgia,'Times New Roman',serif;color:#111;line-height:1.6;max-width:680px;margin:48px auto;padding:0 24px;white-space:pre-wrap}
-      .top{font-family:Arial,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#92400e;border-bottom:2px solid #D97706;padding-bottom:8px;margin-bottom:24px}
-      </style></head><body><div class="top">Contabilidade ZX Control</div>${esq}</body></html>`);
+      .top{font-family:Arial,sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:${corTexto};border-bottom:2px solid ${cor};padding-bottom:8px;margin-bottom:24px;white-space:normal}
+      </style></head><body><div class="top">${logo}${nome}</div>${esq}</body></html>`);
     w.document.close();
     w.focus();
     setTimeout(() => { w.print(); }, 250);
