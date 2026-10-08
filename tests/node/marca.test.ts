@@ -5,6 +5,7 @@ import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync,
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { runInNewContext } from "node:vm";
+import { spawnSync } from "node:child_process";
 import "../../painel/marca.js";
 import { aplicarMarca, MarcaErro } from "../../setup/marca.mjs";
 
@@ -179,5 +180,38 @@ describe("setup/marca.mjs (aplicarMarca)", () => {
     aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: "https://exemplo.com.br/logo.svg" });
     expect(lerConfig().marca.logo).toBe("https://exemplo.com.br/logo.svg");
     expect(existsSync(join(raiz, "painel", "marca"))).toBe(false);
+  });
+
+  it("nome hostil (aspas, </script>, $(...), crases, quebras) é gravado como TEXTO e sobrevive à leitura", () => {
+    const nome = 'Silva "&" <script>alert(1)</script> $(touch /tmp/x) `id` \\ \u2028 fim';
+    aplicarMarca({ raiz, nome, cor: "#123456" });
+    expect(lerConfig().marca.nome).toBe(nome);
+    const docs: any = { window: {} };
+    runInNewContext(readFileSync(join(raiz, "docs", "marca.config.js"), "utf8"), docs);
+    expect(docs.window.ZX.marca.nome).toBe(nome);
+  });
+
+  it("logo com espaço no caminho e caminho absoluto funcionam e viram marca/logo.<ext>", () => {
+    mkdirSync(join(raiz, "minha pasta"), { recursive: true });
+    const origem = join(raiz, "minha pasta", "Logo Escritório.PNG");
+    writeFileSync(origem, "PNG-ESPACO");
+    aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: origem });
+    expect(lerConfig().marca.logo).toBe("marca/logo.png");
+    expect(readFileSync(join(raiz, "painel", "marca", "logo.png"), "utf8")).toBe("PNG-ESPACO");
+  });
+
+  it("CLI --json - lê da entrada padrão: valor com $(...) não executa nada e invalido sai 2", () => {
+    const marcador = join(raiz, "EXECUTOU");
+    const nome = `Teste $(touch ${marcador}) \`touch ${marcador}\``;
+    const ok = spawnSync("node", [join(REPO, "setup", "marca.mjs"), "--raiz", raiz, "--json", "-"], {
+      input: JSON.stringify({ nome, cor: "#1D4ED8", logo: join(raiz, "logo-teste.png") }), encoding: "utf8",
+    });
+    expect(ok.status).toBe(0);
+    expect(existsSync(marcador)).toBe(false);
+    expect(lerConfig().marca.nome).toBe(nome);
+    const ruim = spawnSync("node", [join(REPO, "setup", "marca.mjs"), "--raiz", raiz, "--json", "-"], { input: JSON.stringify({ nome: "X", cor: "azul" }), encoding: "utf8" });
+    expect(ruim.status).toBe(2);
+    const lixo = spawnSync("node", [join(REPO, "setup", "marca.mjs"), "--raiz", raiz, "--json", "-"], { input: "{nao-json", encoding: "utf8" });
+    expect(lixo.status).toBe(2);
   });
 });

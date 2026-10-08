@@ -12,6 +12,8 @@
 //
 // Uso:
 //   node setup/marca.mjs --nome "Escritório Silva" [--cor "#1D4ED8"] [--cor2 "#0B1F4D"] [--logo ~/logo.png]
+//   node setup/marca.mjs --json -   (JSON {nome,cor,cor2,logo} na entrada padrão: forma SEGURA para
+//                                    valores digitados pelo aluno, sem passar por aspas do shell)
 //
 // Saída: 0 = gravado (cor ausente grava o padrão ZX COM aviso) · 2 = campo inválido (pergunte de novo).
 // Rode de novo com os 4 campos para trocar a marca: campo omitido volta ao padrão.
@@ -122,6 +124,7 @@ export function aplicarMarca({ raiz = RAIZ_PADRAO, nome, cor, cor2, logo } = {})
 }
 
 const AJUDA = `Uso: node setup/marca.mjs --nome "Escritório Silva" [--cor "#1D4ED8"] [--cor2 "#0B1F4D"] [--logo ~/logo.png]
+  ou:  node setup/marca.mjs --json -   (JSON na entrada padrão com nome, cor, cor2, logo; use para texto digitado pelo aluno)
   --nome   obrigatório
   --cor    cor primária #RRGGBB (ou #RGB). Omitida: padrão ZX (âmbar), com aviso
   --cor2   cor secundária, opcional (omitida: versão mais escura da primária)
@@ -132,7 +135,7 @@ function lerArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--ajuda" || a === "-h") out.ajuda = true;
-    else if (["--nome", "--cor", "--cor2", "--logo", "--raiz"].includes(a)) out[a.slice(2)] = argv[++i] ?? "";
+    else if (["--nome", "--cor", "--cor2", "--logo", "--raiz", "--json"].includes(a)) out[a.slice(2)] = argv[++i] ?? "";
     else throw new MarcaErro(`Argumento desconhecido: ${a}`);
   }
   return out;
@@ -142,6 +145,13 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   try {
     const args = lerArgs(process.argv.slice(2));
     if (args.ajuda) { console.log(AJUDA); process.exit(0); }
+    if (args.json !== undefined) {
+      if (args.json !== "-") throw new MarcaErro('Use --json - (JSON lido da entrada padrão).');
+      let dados;
+      try { dados = JSON.parse(readFileSync(0, "utf8")); } catch { throw new MarcaErro("JSON inválido na entrada padrão. Esperado: {\"nome\":\"...\",\"cor\":\"#RRGGBB\",\"cor2\":\"\",\"logo\":\"\"}"); }
+      if (!dados || typeof dados !== "object" || Array.isArray(dados)) throw new MarcaErro("JSON da marca deve ser um objeto.");
+      for (const k of ["nome", "cor", "cor2", "logo"]) if (args[k] === undefined && dados[k] !== undefined) args[k] = String(dados[k]);
+    }
     const { marca, avisos } = aplicarMarca({ ...args, raiz: args.raiz ? resolve(args.raiz) : RAIZ_PADRAO });
     for (const a of avisos) console.log(`⚠️  ${a}`);
     console.log(`✅ Marca gravada: ${marca.nome} · ${marca.corPrimaria}${marca.corSecundaria ? ` / ${marca.corSecundaria}` : ""}${marca.logo ? ` · logo ${marca.logo}` : " · sem logo (só o nome em texto)"}`);

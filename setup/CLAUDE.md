@@ -49,8 +49,15 @@ aluno tem todas em mãos antes de prosseguir):
    `.gitignore`); o `config.example.js` SIM é versionado. Nunca commite credencial.
    **Depois de preencher o `painel/config.js`, grave a marca do passo 2** com o utilitário de validação
    (ele não pergunta nada, quem conversou com o aluno foi você):
-   `node setup/marca.mjs --nome "<nome>" --cor "<#hex>" --cor2 "<#hex>" --logo "<caminho ou URL>"`
-   (omita `--cor2`/`--logo` se o aluno não informou; omitir `--cor` grava o padrão ZX e imprime o aviso).
+   passe os valores **pela entrada padrão, nunca dentro de aspas do shell** (nome e caminho são texto
+   digitado pelo aluno; `"$(...)"` ou crases executariam comandos). Use heredoc com delimitador entre aspas simples:
+   ```
+   node setup/marca.mjs --json - <<'MARCA_JSON'
+   {"nome": "<nome>", "cor": "<#hex>", "cor2": "<#hex ou vazio>", "logo": "<caminho, URL https ou vazio>"}
+   MARCA_JSON
+   ```
+   (escreva o JSON com aspas e barras escapadas; omita `cor2`/`logo` se o aluno não informou; omitir `cor` grava o
+   padrão ZX e imprime o aviso).
    Saída `2` = campo inválido: leia a mensagem ao aluno e pergunte aquele campo de novo. Ele grava o bloco
    `window.ZX.marca` no `painel/config.js`, copia o logo para `painel/marca/` e republica a marca para a
    proposta e a apresentação em `docs/`. Para trocar a marca depois, rode o mesmo comando com os 4 campos.
