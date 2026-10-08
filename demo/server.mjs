@@ -37,7 +37,8 @@ const agora = () => new Date().toISOString();
 const comDisc = (t) => `${t}\n\n${DISCLAIMER}`;
 
 const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "application/javascript; charset=utf-8", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp" };
-const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "Authorization, Content-Type", "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS" };
+// Sem Access-Control-Allow-Origin: a demo é same-origin; página de outro site não lê a API nem o token.
+const CORS = { "Access-Control-Allow-Headers": "Authorization, Content-Type", "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS" };
 
 function json(res, data, status = 200) {
   res.writeHead(status, { "Content-Type": "application/json", ...CORS });
@@ -73,7 +74,7 @@ async function serveStatic(req, res) {
   let p;
   try { p = decodeURIComponent((req.url || "/").split("?")[0]); } catch { res.writeHead(400); return res.end("Bad request"); }
   if (p === "/config.js") { // também com ?query: nunca serve o painel/config.js real (tem chaves do Supabase)
-    res.writeHead(200, { "Content-Type": MIME[".js"] });
+    res.writeHead(200, { "Content-Type": MIME[".js"], "Cross-Origin-Resource-Policy": "same-origin" });
     return res.end(configJs());
   }
   if (p === "/") p = "/index.html";

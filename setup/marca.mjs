@@ -52,7 +52,11 @@ function pareceImagem(caminho, ext) {
   if (ext === ".png") return ini.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
   if (ext === ".jpg" || ext === ".jpeg") return ini[0] === 0xff && ini[1] === 0xd8 && ini[2] === 0xff;
   if (ext === ".webp") return ini.subarray(0, 4).toString("latin1") === "RIFF" && ini.subarray(8, 12).toString("latin1") === "WEBP";
-  if (ext === ".svg") { const t = buf.toString("utf8", 0, 4096); return /<svg[\s>]/i.test(t) && buf.length < 2_000_000; }
+  if (ext === ".svg") {
+    // O primeiro elemento do documento tem que ser <svg> (depois de BOM, <?xml?>, comentários e DOCTYPE).
+    const t = buf.toString("utf8", 0, 8192).replace(/^\uFEFF/, "").replace(/^(\s|<\?xml[\s\S]*?\?>|<!--[\s\S]*?-->|<!DOCTYPE[^>]*>)+/i, "");
+    return /^<svg[\s>]/i.test(t) && buf.length < 2_000_000;
+  }
   return false;
 }
 

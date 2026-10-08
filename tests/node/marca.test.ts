@@ -293,6 +293,10 @@ describe("logo de origem", () => {
     writeFileSync(join(raiz, "falso.png"), "SUPABASE_SERVICE_KEY=segredo");
     expect(() => aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: join(raiz, "falso.png") })).toThrow(/não parece uma imagem/);
     expect(existsSync(join(raiz, "docs", "marca"))).toBe(false);
+    writeFileSync(join(raiz, "texto.svg"), "nota: <svg ");
+    expect(() => aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: join(raiz, "texto.svg") })).toThrow(/não parece uma imagem/);
+    writeFileSync(join(raiz, "ok.svg"), '<?xml version="1.0"?>\n<!-- c -->\n<svg xmlns="http://www.w3.org/2000/svg"/>');
+    expect(() => aplicarMarca({ raiz, nome: "X", cor: "#123456", logo: join(raiz, "ok.svg") })).not.toThrow();
   });
 
   it("CLI: nome null ou de tipo errado no JSON sai 2", () => {
