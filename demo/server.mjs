@@ -11,7 +11,6 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
-import { runInNewContext } from "node:vm";
 import { join, extname, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as DB from "./data.mjs";
@@ -56,9 +55,12 @@ function readBody(req) {
 // Só o bloco `window.ZX.marca` é aproveitado (a config real, com chaves do Supabase, nunca é exposta pela demo).
 function marcaDoAluno() {
   try {
-    const sandbox = { window: {} };
-    runInNewContext(readFileSync(join(PAINEL, "config.js"), "utf8"), sandbox, { timeout: 500 });
-    return sandbox.window.ZX?.marca;
+    // Sem executar JavaScript: extrai o bloco entre os marcadores e lê o literal como JSON (é como o marca.mjs grava).
+    const txt = readFileSync(join(PAINEL, "config.js"), "utf8");
+    const m = /\/\/ >>> marca[^\n]*\nwindow\.ZX\.marca = ([\s\S]*?);\n\/\/ <<< marca/.exec(txt);
+    if (!m) return undefined;
+    const o = JSON.parse(m[1]);
+    return o && typeof o === "object" && !Array.isArray(o) ? o : undefined;
   } catch {
     return undefined; // sem painel/config.js (ou ilegível): demo com a marca padrão
   }
