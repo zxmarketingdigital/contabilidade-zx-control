@@ -147,4 +147,16 @@ describe("painel: tela Início", () => {
     expect(html).toContain("Prazos vencidos");
     expect(html).not.toContain("antiga falhou");
   });
+
+  it("Relatório: limpa os lançamentos antigos já na entrada, mesmo se /empresas demorar ou cair em 401", async () => {
+    const ok = (corpo: unknown) => Promise.resolve({ status: 200, ok: true, json: () => Promise.resolve(corpo) });
+    let lento = false;
+    const p = criarPainel((url) => (lento && url === "/api/empresas" ? new Promise(() => {}) : ok([])));
+    await entrar(p);
+    p.elemento("rec-tbl").innerHTML = "<b>ANTIGO</b>";
+    lento = true;
+    p.aba("relatorio").clicar();
+    await new Promise((r) => setTimeout(r, 50));
+    expect(p.elemento("rec-tbl").innerHTML).not.toContain("ANTIGO");
+  });
 });

@@ -551,10 +551,12 @@
   // ── Relatório do escritório ──
   const statBox = (cls, num, lbl) => `<div class="stat-card static ${cls}"><div class="stat-num">${num}</div><div class="stat-lbl">${lbl}</div></div>`;
   async function loadRelatorio() {
-    await carregarEmpresas(true);
+    // Estado de "carregando" ANTES de qualquer await: nada de resultado/lançamento antigo na tela enquanto recarrega
+    // (nem se /empresas demorar ou cair em 401).
     $("rel-cards").innerHTML = `<div class="empty">${SPINNER} Calculando…</div>`;
     $("rel-rank").innerHTML = "";
-    ["fin-cards", "rec-tbl", "cus-tbl"].forEach((id) => { $(id).innerHTML = ""; }); // nada de lançamento antigo enquanto recarrega
+    ["fin-cards", "rec-tbl", "cus-tbl"].forEach((id) => { $(id).innerHTML = ""; });
+    await carregarEmpresas(true);
     const [prazos, comps] = await Promise.all([api("/prazos"), api("/competencias")]);
     const total = prazos.length;
     const cumpridos = prazos.filter((p) => p.status === "cumprido").length;
