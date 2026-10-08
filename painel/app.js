@@ -729,6 +729,36 @@
     return `<div class="table-wrap"><div class="empty">${esc(msg)}<div style="margin-top:14px"><button class="btn btn-primary btn-sm" id="${id}">${esc(btnLabel)}</button></div></div></div>`;
   }
 
+  // ── Estado de erro: carregamento que falha NUNCA deixa o "Carregando…" na tela ──
+  // Cada carregador de tela é embrulhado: se a API recusar (400/500/rede), o lugar do spinner
+  // vira uma mensagem com "Tentar de novo". Os carregadores são chamados de vários pontos
+  // (abas, filtros, depois de salvar), por isso o embrulho troca a própria função, não só o render().
+  function protegido(fn, alvoId, limpar = []) {
+    const embrulhado = async (...args) => {
+      try {
+        return await fn(...args);
+      } catch (err) {
+        if (!token) return; // sessão caiu (401): a tela de login já está de volta
+        const alvo = $(alvoId);
+        if (!alvo) return;
+        limpar.forEach((id) => { const el = $(id); if (el) el.innerHTML = ""; });
+        alvo.innerHTML = `<div class="table-wrap"><div class="empty erro" role="alert">Não consegui carregar esta tela: ${esc(err && err.message ? err.message : "erro inesperado")}
+          <div style="margin-top:14px"><button class="btn btn-primary btn-sm" data-retry>Tentar de novo</button></div></div></div>`;
+        const b = alvo.querySelector("[data-retry]");
+        if (b) b.addEventListener("click", () => embrulhado(...args));
+      }
+    };
+    return embrulhado;
+  }
+  loadInicio = protegido(loadInicio, "dash-cards", ["dash-prox"]);
+  loadEmpresas = protegido(loadEmpresas, "emp-tbl");
+  loadCrm = protegido(loadCrm, "crm-tbl", ["crm-funil"]);
+  loadCompetencias = protegido(loadCompetencias, "comp-tbl");
+  loadAgenda = protegido(loadAgenda, "ag-tbl");
+  loadSaidas = protegido(loadSaidas, "sa-tbl");
+  loadRelatorio = protegido(loadRelatorio, "rel-cards", ["rel-rank"]);
+  loadFinanceiro = protegido(loadFinanceiro, "fin-cards", ["rec-tbl", "cus-tbl"]);
+
   function openModal(titulo, html, onConfirm, _x, okLabel = "Salvar") {
     const back = document.createElement("div");
     back.className = "modal-backdrop";

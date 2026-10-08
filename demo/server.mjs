@@ -157,9 +157,10 @@ const server = createServer(async (req, res) => {
 
   // ── Prazos / agenda ──
   if (path === "/prazos" && m === "GET") {
+    // Igual ao Worker real (src/app.ts): sem empresaId = agenda completa do escritório (painel-início / aviso de login).
     const eid = url.searchParams.get("empresaId");
-    if (!eid) return json(res, { error: "empresaId obrigatório" }, 400);
-    return json(res, state.prazos.filter((p) => p.empresaId === eid).sort((a, b) => a.dataFatal.localeCompare(b.dataFatal)));
+    const rows = eid ? state.prazos.filter((p) => p.empresaId === eid) : state.prazos;
+    return json(res, [...rows].sort((a, b) => a.dataFatal.localeCompare(b.dataFatal)));
   }
   if (path === "/prazos" && m === "POST") {
     const b = await readBody(req);
