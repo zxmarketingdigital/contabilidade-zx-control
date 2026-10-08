@@ -61,6 +61,13 @@
     return cor;
   }
 
+  /** Escurece `hex` até ficar legível como TEXTO sobre papel branco (PDF). */
+  function legivelNoClaro(hex) {
+    let cor = hex;
+    for (let t = 0; contraste(cor, BRANCO) < CONTRASTE_TEXTO && t < 30; t++) cor = misturar(cor, "#000000", 0.12);
+    return cor;
+  }
+
   /** Paleta completa (todas as CSS vars) a partir da primária e da secundária opcional. */
   function paleta(corPrimaria, corSecundaria) {
     const p = normalizarHex(corPrimaria) || COR_PADRAO;
@@ -128,7 +135,7 @@
     aplicarTextos(marca, doc);
   }
 
-  const api = { COR_PADRAO, normalizarHex, misturar, luminancia, contraste, corSobre, legivelNoEscuro, paleta, logoValido, lerMarca, aplicar, aplicarCores, aplicarTextos };
+  const api = { COR_PADRAO, normalizarHex, misturar, luminancia, contraste, corSobre, legivelNoEscuro, legivelNoClaro, paleta, logoValido, lerMarca, aplicar, aplicarCores, aplicarTextos };
   globalThis.ZXMarca = api;
   if (typeof document !== "undefined") {
     const marca = lerMarca(globalThis.ZX);

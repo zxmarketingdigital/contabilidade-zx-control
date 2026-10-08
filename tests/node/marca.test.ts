@@ -12,6 +12,17 @@ import { aplicarMarca, MarcaErro } from "../../setup/marca.mjs";
 const Z = (globalThis as any).ZXMarca;
 const REPO = join(__dirname, "..", "..");
 
+describe("legivelNoClaro (texto da marca no PDF)", () => {
+  it("garante contraste >= 4,5 contra branco para qualquer cor, inclusive branco e amarelo", () => {
+    for (const c of ["#FFFFFF", "#FFFF00", "#D97706", "#1D4ED8", "#000000", "#F5F5F5"]) {
+      expect(Z.contraste(Z.legivelNoClaro(c), "#FFFFFF")).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+  it("cor que já passa não muda", () => {
+    expect(Z.legivelNoClaro("#1D4ED8")).toBe("#1D4ED8");
+  });
+});
+
 describe("normalizarHex", () => {
   it("aceita #RGB e #RRGGBB, normaliza para maiúsculas", () => {
     expect(Z.normalizarHex("#abc")).toBe("#AABBCC");

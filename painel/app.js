@@ -291,7 +291,7 @@
     const m = Z ? Z.lerMarca(ZX) : { nome: "", corPrimaria: null, logo: null };
     const nome = esc(m.nome || "Contabilidade ZX Control");
     const cor = m.corPrimaria || "#D97706";
-    const corTexto = Z ? Z.misturar(cor, "#000000", 0.4) : "#92400e"; // legível sobre papel branco
+    const corTexto = Z ? Z.legivelNoClaro(cor) : "#92400e"; // legível sobre papel branco
     const logo = m.logo ? `<img src="${esc(new URL(m.logo, location.href).href)}" alt="" style="display:block;max-height:40px;max-width:180px;margin-bottom:10px">` : "";
     w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
       <title>${nome}</title><style>
